@@ -21,7 +21,7 @@ export interface LibraryItem {
 export const LIBRARY_RESOURCES: LibraryItem[] = [
   { 
     title: "SeTs Ryu Explainer Video", 
-    link: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", 
+    link: "https://video.wixstatic.com/video/1e485c_d79f7140e2ea4c9ca8b9e0cd5efed9d2/1080p/mp4/file.mp4", 
     type: "Video", 
     description: "A comprehensive video guide to the SeTs Ryu Monad methodology and practice system." 
   },
@@ -39,24 +39,36 @@ export const LIBRARY_RESOURCES: LibraryItem[] = [
   },
   { 
     title: "Gnostic Theology Overview", 
-    link: "#internal", 
+    link: "https://1e485c5d-728a-491a-ad8d-5ec1726259b6.usrfiles.com/ugd/1e485c_77c68cfdece340f5a1c9c4c968bc8d6e.pdf", 
     type: "Document", 
     description: "An internal whitepaper detailing the core principles of Monad theology.",
     internalContent: "This document provides an exhaustive overview of the Monad, the Demiurge, and the Archons. It explains the historical context of Gnosticism and how it parallels modern physics and simulation theory. Key takeaway: Gnosis is not taught; it is remembered."
   },
   { 
     title: "Chi Kung Active Meditation", 
-    link: "#internal", 
+    link: "https://static.wixstatic.com/mp3/1e485c_98a4eb6a86864d6c8eff2ab34f892aa5.m4a", 
     type: "Podcast", 
     description: "Audio commentary on the integration of physical movement and mental stillness.",
     internalContent: "Episode Transcript: In this session, we discuss the bio-energetic mastery of the Vagus nerve. By utilizing 'Sound in Body', we create a resonant frequency that shields the practitioner from cognitive loops inherent in the Matrix simulation."
   },
   { 
     title: "Cognitive Adaptations Research", 
-    link: "#internal", 
+    link: "https://1e485c5d-728a-491a-ad8d-5ec1726259b6.usrfiles.com/ugd/1e485c_8a27ae40ea9345448dd8721a14f2c048.pdf", 
     type: "Research", 
     description: "Scientific study on the evolutionary origins of agency detection.",
     internalContent: "Abstract: Our research suggests that religious belief is a byproduct of the Hypersensitive Agency Detection Device (HADD). By understanding this cognitive adaptation, practitioners can 're-hack' their neurology to differentiate between false agency (simulation scripts) and true Gnostic intent."
+  },
+  {
+    title: "The Monad Treatise",
+    link: "https://1e485c5d-728a-491a-ad8d-5ec1726259b6.usrfiles.com/ugd/1e485c_5559b2cce019405793c9f6b3981098ca.pdf",
+    type: "Document",
+    description: "Original source text on the nature of the Absolute Monad."
+  },
+  {
+    title: "Gnostic Commentary Source",
+    link: "https://1e485c5d-728a-491a-ad8d-5ec1726259b6.usrfiles.com/ugd/1e485c_e784ac9d3e8c4fcfb13ff7520b9a4785.pdf",
+    type: "Document",
+    description: "Secondary source commentary on the intersection of faith and biology."
   }
 ];
 
@@ -97,20 +109,25 @@ export const MIND_MAP_DATA: any = {
   color: COLORS.brandWhite,
   description: 'The Absolute One, the eternal source, the ultimate silence.',
   content: [
-    'Practical/Physical monastic practices: visualization methods, symbols and rituals.',
-    'Mind Skills: techniques such as perspective reframing and mental shifts.',
-    'Evolutionary Context: Religious belief as a byproduct of cognitive adaptations.'
+    'Practical/Physical monastic practices: visualization, symbols, rituals.',
+    'Mind Skills and Mental Shifts: perspective reframing techniques.',
+    'Evolutionary and Developmental context: Christianity and Modern Psychology.'
   ],
   detailedInfo: {
     0: {
-      title: 'Monastic Visualizations',
-      explanation: 'Visualization is the bridge between the material and the Monad. By focusing on sacred symbols, one aligns their neuro-frequency with the void.',
-      exercises: ['Vagus Nerve Stimulation (Humming)', 'Golden Ratio Breathing', 'Infinite Point Visualization']
+      title: 'Practical Monasticism',
+      explanation: 'Somatic alignment through specific physical protocols designed to stimulate the vagus nerve and resonant frequencies within the body. These rituals bridge the gap between physical existence and spiritual essence.',
+      exercises: ['Vagus Nerve Humming (Chanting)', 'Symbolic Visualization of the Monad', 'Sacred Ritual Cleansing']
     },
     1: {
       title: 'Mental Reframing',
-      explanation: 'Transformational psychology requires breaking the standard algorithm of thought. By reframing suffering as "data", we detach from the Demiurge.',
-      exercises: ['The Observer Shift', 'Narrative Deconstruction', 'Pattern Interruption']
+      explanation: 'Advanced transformational psychology techniques that shift the observer status of the mind. By deconstructing standard narrative loops, the student moves from a reactive state to a sovereign state.',
+      exercises: ['Narrative Deconstruction', 'Perspective Shift Meditation', 'Algorithm Interruption']
+    },
+    2: {
+      title: 'The Evolutionary Context',
+      explanation: 'A comparative study of Christianity as a spiritual practice versus modern psychological theories. We explore agency detection and the social theory of mind as evolutionary adaptations that facilitate spiritual belief.',
+      exercises: ['Agency Detection Mapping', 'Social Mind Deconstruction', 'Historical Gnostic Comparison']
     }
   },
   subNodes: [
@@ -122,16 +139,33 @@ export const MIND_MAP_DATA: any = {
       description: 'The simulated reality constructed by the Demiurge.',
       content: ['Architectural design of illusion.', 'Archons: Jailers of consciousness.', 'Breaking the algorithm.'],
       detailedInfo: {
+        0: {
+          title: 'Architectural Illusion',
+          explanation: 'The Matrix is built on geometric and digital-like structures that mimic reality to harvest energy through emotional stimulation.',
+          exercises: ['Geometric Breakdown Meditation', 'Digital Glitch Detection', 'Symmetry Identification']
+        },
         1: {
           title: 'The Archon Jailers',
-          explanation: 'Archons are parasitic frequencies that maintain the simulation by inducing emotional loops.',
-          exercises: ['Fear-Harvest Interruption', 'Dream Sovereignty Training']
+          explanation: 'Archons are parasitic frequencies that maintain the simulation by inducing emotional loops and parasitic thought patterns.',
+          exercises: ['Fear-Harvest Interruption', 'Dream Sovereignty Training', 'Parasitic Thought Labeling']
+        },
+        2: {
+          title: 'Algorithm Breakers',
+          explanation: 'Systematic techniques to exit the predictive behavior patterns analyzed by the Matrix architecture.',
+          exercises: ['Random Action Protocol', 'predictive Loop Identification', 'Sovereign Intent Activation']
         }
       },
       subNodes: [
-        { id: 'archons', label: 'Archons', type: 'moon', color: '#888', description: 'Parasitic entities feeding on fear.', content: ['Invisibility mechanics', 'Thought insertion protocols'] },
-        { id: 'demiurge', label: 'Demiurge', type: 'moon', color: '#666', description: 'The false creator.', content: ['Blind Architect principles'] },
-        { id: 'awakening', label: 'Awakening', type: 'moon', color: COLORS.brandYellow, description: 'Direct knowing (Gnosis).', content: ['Remembrance techniques'] }
+        { id: 'archons', label: 'Archons', type: 'moon', color: '#79B0ED', description: 'Parasitic entities feeding on fear.', content: ['Invisibility mechanics', 'Thought insertion protocols'], detailedInfo: {
+          0: { title: 'Invisibility Mechanics', explanation: 'How parasites hide behind normalized thoughts.', exercises: ['Silent Observation'] },
+          1: { title: 'Insertion Protocols', explanation: 'Identifying thoughts that are not yours.', exercises: ['Inner Voice Auditing'] }
+        }},
+        { id: 'demiurge', label: 'Demiurge', type: 'moon', color: '#A8CFF8', description: 'The false creator.', content: ['Blind Architect principles'], detailedInfo: {
+          0: { title: 'The Blind Architect', explanation: 'The logic of a creator who cannot see the source.', exercises: ['Limit Identification'] }
+        }},
+        { id: 'awakening', label: 'Awakening', type: 'moon', color: '#D7EEFF', description: 'Direct knowing (Gnosis).', content: ['Remembrance techniques'], detailedInfo: {
+          0: { title: 'Remembrance', explanation: 'Gnosis as a memory of the original state.', exercises: ['Ancestral Memory Recall'] }
+        }}
       ]
     },
     {
@@ -143,15 +177,31 @@ export const MIND_MAP_DATA: any = {
       content: ['Vagus nerve activation.', 'Microcosmic orbit mastery.', 'Sound in body, sound in mind.'],
       detailedInfo: {
         0: {
-          title: 'Vagus Nerve Mastery',
+          title: 'Vagus Nerve Activation',
           explanation: 'The Vagus nerve is the physical interface of the parasympathetic system. Activation triggers the "rest and Gnosis" state.',
-          exercises: ['Cold exposure grounding', 'Diaphragmatic resonance']
+          exercises: ['Cold exposure grounding', 'Diaphragmatic resonance', 'Ocular Nerve Relaxation']
+        },
+        1: {
+          title: 'The Microcosmic Orbit',
+          explanation: 'Circulating bio-electrical energy through the governing and conception vessels to harmonize the internal solar system.',
+          exercises: ['Energy Circulation Breath', 'Spinal Channel Visualization', 'Lower Dantian Storage']
+        },
+        2: {
+          title: 'Bio-Resonant Sound',
+          explanation: 'Using vocal and internal resonance to match the frequencies of the Monad, creating a harmonic shield around the consciousness.',
+          exercises: ['Bone Resonance Chanting', 'Cellular Vibration Focus', 'Harmonic Alignment']
         }
       },
       subNodes: [
-        { id: 'breath', label: 'Breathwork', type: 'moon', color: '#ff9a76', description: 'Gateway to the autonomic system.', content: ['Bellows breath mechanics'] },
-        { id: 'vagus', label: 'Vagus Nerve', type: 'moon', color: '#ffb38a', description: 'The physical interface of meditation.', content: ['Parasympathetic tone training'] },
-        { id: 'meditation', label: 'Active Med.', type: 'moon', color: '#ffd1bc', description: 'Moving with focus.', content: ['Stance work fundamentals'] }
+        { id: 'breath', label: 'Breathwork', type: 'moon', color: '#FF9F7C', description: 'Gateway to the autonomic system.', content: ['Bellows breath mechanics'], detailedInfo: {
+          0: { title: 'Bellows Breath', explanation: 'Rapid oxygenation and energy moving.', exercises: ['3 Rounds of Fire'] }
+        }},
+        { id: 'vagus', label: 'Vagus Nerve', type: 'moon', color: '#FFBFA8', description: 'The physical interface of meditation.', content: ['Parasympathetic tone training'], detailedInfo: {
+          0: { title: 'Tone Training', explanation: 'Increasing resilience through calm.', exercises: ['Slow Exhale Holding'] }
+        }},
+        { id: 'meditation', label: 'Active Med.', type: 'moon', color: '#FFDFD4', description: 'Moving with focus.', content: ['Stance work fundamentals'], detailedInfo: {
+          0: { title: 'Stance Work', explanation: 'Rooting as a spiritual anchor.', exercises: ['Horse Stance 3-min'] }
+        }}
       ]
     },
     {
@@ -161,10 +211,33 @@ export const MIND_MAP_DATA: any = {
       color: COLORS.brandYellow,
       description: 'Modern understanding of the human mind.',
       content: ['Agency detection bias.', 'Theory of Mind applications.', 'Neuroplasticity mechanics.'],
+      detailedInfo: {
+        0: {
+          title: 'Agency Detection Bias',
+          explanation: 'The evolved tendency to see intent and design even where only stochastic processes exist—often used by the Matrix to hide.',
+          exercises: ['Pattern/Noise Discrimination', 'Intent Attribution Auditing', 'Pseudo-Design Mapping']
+        },
+        1: {
+          title: 'Social Theory of Mind',
+          explanation: 'Understanding how our brains model other people—and how this modeling is hijacked by religious and digital entities.',
+          exercises: ['Empathy Shielding', 'Simulated Interaction Analysis', 'Boundary Reinforcement']
+        },
+        2: {
+          title: 'Practical Neuroplasticity',
+          explanation: 'Re-wiring the neural architecture through repeated sovereign focus and active meditation.',
+          exercises: ['New Habit Etching', 'Focus Sustain Challenge', 'Synaptic Pruning Meditation']
+        }
+      },
       subNodes: [
-        { id: 'agency', label: 'Agency Detection', type: 'moon', color: '#f7d794', description: 'The evolved tendency to see intent.', content: ['Hyperactive HADD analysis'] },
-        { id: 'reframing', label: 'Reframing', type: 'moon', color: '#f8c291', description: 'Neural rewiring via perspective.', content: ['Cognitive reappraisal'] },
-        { id: 'metacognition', label: 'Metacognition', type: 'moon', color: '#e77f67', description: 'The Observer effect.', content: ['Thinking about thinking'] }
+        { id: 'agency', label: 'Agency Detection', type: 'moon', color: '#F7BA55', description: 'The evolved tendency to see intent.', content: ['Hyperactive HADD analysis'], detailedInfo: {
+          0: { title: 'HADD Analysis', explanation: 'Why we see ghosts and gods in the shadows.', exercises: ['Visual Noise Testing'] }
+        }},
+        { id: 'reframing', label: 'Reframing', type: 'moon', color: '#F9CE87', description: 'Neural rewiring via perspective.', content: ['Cognitive reappraisal'], detailedInfo: {
+          0: { title: 'Cognitive Reappraisal', explanation: 'Changing emotion by changing definition.', exercises: ['Reframing Negative Input'] }
+        }},
+        { id: 'metacognition', label: 'Metacognition', type: 'moon', color: '#FBE2B9', description: 'The Observer effect.', content: ['Thinking about thinking'], detailedInfo: {
+          0: { title: 'The Meta Observer', explanation: 'Watching the watcher.', exercises: ['Secondary Awareness Drill'] }
+        }}
       ]
     }
   ]

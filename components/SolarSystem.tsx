@@ -17,6 +17,9 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
   const [showNavPop, setShowNavPop] = useState(false);
   const lastMousePos = useRef({ x: 0, y: 0 });
 
+  // Baseline Z-index for the center of the system
+  const SYSTEM_CENTER_Z = 500;
+
   useEffect(() => {
     if (isPaused) return;
     const interval = setInterval(() => {
@@ -60,12 +63,20 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
     >
       <div 
         className="relative w-full h-full flex items-center justify-center transition-transform duration-300"
-        style={{ transform: `rotateX(${dragRotation.x}deg) rotateY(${dragRotation.y}deg)` }}
+        style={{ 
+          transform: `rotateX(${dragRotation.x}deg) rotateY(${dragRotation.y}deg)`,
+          transformStyle: 'preserve-3d'
+        }}
       >
-        {/* Central Hub: The Monad */}
+        {/* Central Hub: The Monad - Set to Center Z */}
         <div 
           onClick={() => onNodeClick(data)}
-          className="group absolute w-64 h-64 rounded-full bg-[radial-gradient(circle_at_30%_30%,#ffffff,#cccccc)] flex items-center justify-center cursor-pointer transition-all duration-700 shadow-[0_0_100px_rgba(255,255,255,0.6)] z-20 hover:scale-125 border-4 border-white/5"
+          className="group absolute w-64 h-64 rounded-full bg-[radial-gradient(circle_at_30%_30%,#ffffff,#cccccc)] flex items-center justify-center cursor-pointer transition-all duration-700 shadow-[0_0_100px_rgba(255,255,255,0.6)] hover:scale-125 border-4 border-white/5"
+          style={{ 
+            zIndex: SYSTEM_CENTER_Z,
+            transform: 'translate3d(0, 0, 0)',
+            transformStyle: 'preserve-3d'
+          }}
         >
           <div className="absolute inset-0 bg-white/10 rounded-full animate-ping pointer-events-none"></div>
           <span className="text-black font-mystic text-3xl font-bold tracking-widest text-center px-4 leading-tight drop-shadow-md">
@@ -76,53 +87,75 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
           </div>
         </div>
 
-        <div className="absolute w-[950px] h-[950px] border border-blue-500/10 rounded-full pointer-events-none" style={{ transform: 'rotateX(90deg)' }}></div>
+        {/* Orbits Visual Plane - Stays in background */}
+        <div className="absolute w-[950px] h-[950px] border border-blue-500/10 rounded-full pointer-events-none" 
+          style={{ 
+            transform: 'rotateX(90deg) translateZ(-50px)',
+            zIndex: 1 
+          }}
+        ></div>
 
-        {/* Dynamic Relational Links (Lines) - Improved Sync and Visuals */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible z-10 opacity-60">
-          <defs>
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
-              <feMerge>
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
-          </defs>
-          {data.subNodes?.map((planet, index) => {
-            const angle = (index * (360 / data.subNodes!.length) + rotation) * (Math.PI / 180);
-            const radius = 380;
-            // Calculate coordinates for SVG line mapping
-            // Note: SVG center is 50%, 50%. radius 380 is roughly 35% of view.
-            const targetX = 50 + (Math.cos(angle) * 32); 
-            const targetY = 50 + (Math.sin(angle) * 8); // Account for flattening
+        {/* Dynamic Relational Links (Lines) - Integrated into 3D Space */}
+        {data.subNodes?.map((planet, index) => {
+          const angle = (index * (360 / data.subNodes!.length) + rotation) * (Math.PI / 180);
+          const radius = 380;
+          const x = Math.cos(angle) * radius;
+          const y = Math.sin(angle) * 100;
+          const z = Math.sin(angle) * radius;
 
-            return (
-              <g key={`link-group-${planet.id}`}>
-                {/* Main Relational Path */}
-                <line 
-                  x1="50%" y1="50%" 
-                  x2={`${targetX}%`} y2={`${targetY}%`}
-                  stroke={planet.color} 
-                  strokeWidth="2"
-                  strokeOpacity="0.3"
-                  filter="url(#glow)"
-                />
-                {/* Energy Pulse Overlay */}
-                <line 
-                  className="link-energy"
-                  x1="50%" y1="50%" 
-                  x2={`${targetX}%`} y2={`${targetY}%`}
-                  stroke={planet.color} 
-                  strokeWidth="1.5" 
-                  strokeDasharray="8 12"
-                  strokeLinecap="round"
-                  filter="url(#glow)"
-                />
-              </g>
-            );
-          })}
-        </svg>
+          // Vary weight and opacity based on Z to enhance depth perception
+          const depthFactor = (z + radius) / (radius * 2); // 0 to 1
+          const strokeWidth = 1 + depthFactor * 3;
+          const opacity = 0.2 + depthFactor * 0.6;
+
+          return (
+            <div 
+              key={`link-container-${planet.id}`}
+              className="absolute pointer-events-none"
+              style={{ 
+                width: '100%', 
+                height: '100%', 
+                transformStyle: 'preserve-3d',
+                zIndex: Math.round(z/2 + SYSTEM_CENTER_Z) // Place links between center and planet
+              }}
+            >
+              <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
+                <defs>
+                  <filter id={`glow-${planet.id}`}>
+                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                    <feMerge>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                <g>
+                  {/* Static Connection Line */}
+                  <line 
+                    x1="50%" y1="50%" 
+                    x2={`${50 + (x / 14)}%`} y2={`${50 + (y / 14)}%`}
+                    stroke={planet.color} 
+                    strokeWidth={strokeWidth}
+                    strokeOpacity={opacity * 0.5}
+                    filter={`url(#glow-${planet.id})`}
+                  />
+                  {/* Energy Flow Animation */}
+                  <line 
+                    className="link-energy"
+                    x1="50%" y1="50%" 
+                    x2={`${50 + (x / 14)}%`} y2={`${50 + (y / 14)}%`}
+                    stroke={planet.color} 
+                    strokeWidth={strokeWidth * 0.8} 
+                    strokeDasharray="10 20"
+                    strokeLinecap="round"
+                    strokeOpacity={opacity}
+                    filter={`url(#glow-${planet.id})`}
+                  />
+                </g>
+              </svg>
+            </div>
+          );
+        })}
 
         {/* Planets and Moons */}
         {data.subNodes?.map((planet, index) => {
@@ -139,7 +172,8 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
               className="absolute transition-all duration-500 pointer-events-none"
               style={{ 
                 transform: `translate3d(${x}px, ${y}px, ${z}px) scale(${1 + (z / 1000)})`,
-                zIndex: Math.round(z + 500)
+                zIndex: Math.round(z + SYSTEM_CENTER_Z), // Correctly occlusion: z > 0 is in front of Monad
+                transformStyle: 'preserve-3d'
               }}
             >
               {/* Planet Core - Scoped Trigger */}
@@ -168,7 +202,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
                 </div>
               </div>
 
-              {/* Moons - Positioned relative to the planet but NOT as part of core group */}
+              {/* Moons - Positioned relative to the planet */}
               {planet.subNodes?.map((moon, mIdx) => {
                 const mAngle = (mIdx * (360 / planet.subNodes!.length) + rotation * 2.5) * (Math.PI / 180);
                 const mRadius = 110; 
@@ -176,7 +210,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
                 const my = Math.sin(mAngle) * mRadius;
 
                 return (
-                  <div key={moon.id} className="absolute pointer-events-none" style={{ transform: `translate(${mx - 16}px, ${my - 16}px)` }}>
+                  <div key={moon.id} className="absolute pointer-events-none" style={{ transform: `translate(${mx - 16}px, ${my - 16}px)`, transformStyle: 'preserve-3d' }}>
                     {/* SVG Link from Planet to Moon */}
                     <svg className="absolute inset-0 w-24 h-24 pointer-events-none overflow-visible -translate-x-12 -translate-y-12">
                        <line 
@@ -210,7 +244,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
       </div>
 
       <div 
-        className="absolute top-32 right-32 z-40 cursor-pointer group animate-gentle-glow rounded-full"
+        className="absolute top-32 right-32 z-[1000] cursor-pointer group animate-gentle-glow rounded-full"
         onClick={() => onNodeClick({ id: 'ai-coach', label: 'AI Coach', type: 'coach', color: COLORS.brandYellow, description: 'Ask the Master.', content: [] })}
       >
         <div className="w-24 h-24 bg-gradient-radial from-yellow-400 to-orange-700 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(245,166,35,0.4)] transition-transform duration-500 group-hover:scale-110">
@@ -222,7 +256,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
         </div>
       </div>
 
-      <div className="absolute bottom-10 left-10 flex flex-col gap-4 z-40">
+      <div className="absolute bottom-10 left-10 flex flex-col gap-4 z-[1000]">
         <button 
           onClick={() => setIsPaused(!isPaused)}
           className="flex items-center gap-3 px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-xs uppercase tracking-widest transition shadow-2xl backdrop-blur-sm"
@@ -244,6 +278,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
                 <li><span className="text-blue-500 font-bold mr-2">HOVER:</span> Core planets zoom 1.5x; moons zoom 2.5x.</li>
                 <li><span className="text-blue-500 font-bold mr-2">CLICK:</span> Engage wormhole tunneling for immersion.</li>
                 <li><span className="text-blue-500 font-bold mr-2">ENERGY:</span> Moving light pulses indicate the flow of knowledge.</li>
+                <li><span className="text-blue-500 font-bold mr-2">OCCLUSION:</span> Planets naturally pass behind the Monad as they orbit.</li>
               </ul>
               <button onClick={() => setShowNavPop(false)} className="mt-6 w-full py-2 bg-white/5 rounded-lg text-[10px] text-gray-400 hover:text-white uppercase tracking-widest border border-white/5">Close Guide</button>
             </div>
