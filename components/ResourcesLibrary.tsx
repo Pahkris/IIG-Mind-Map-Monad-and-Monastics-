@@ -50,7 +50,7 @@ const ResourcesLibrary: React.FC = () => {
                     Open Full {selectedItem.type}
                   </button>
                   <a 
-                    href="https://www.mindsets.eu/education-courses" 
+                    href="https://www.mindsets.eu/book-online" 
                     target="_blank" 
                     className="px-8 py-4 bg-blue-600 hover:bg-blue-500 rounded-xl text-xs font-bold uppercase tracking-widest transition shadow-lg shadow-blue-900/20"
                   >

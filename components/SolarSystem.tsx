@@ -16,7 +16,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
   const [isPaused, setIsPaused] = useState(false);
   const [dragRotation, setDragRotation] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
-  const [showNavPop, setShowNavPop] = useState(true); // Default to open for visibility
+  const [showNavPop, setShowNavPop] = useState(true);
   const lastMousePos = useRef({ x: 0, y: 0 });
 
   const SYSTEM_CENTER_Z = 500;
@@ -86,7 +86,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
             <div className="absolute inset-0 rounded-full flex items-center justify-center overflow-hidden ring-1 ring-white/10" 
                  style={{ background: bg, transform: 'rotateX(90deg)', filter: 'brightness(0.5)' }}>
               <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-center bg-cover" style={{ backgroundImage: `url(${textureUrl})` }}></div>
-            </>
+            </div>
           </>
         )}
 
@@ -94,7 +94,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
         <div className="absolute inset-0 rounded-full opacity-0 group-hover/obj:opacity-100 transition-opacity duration-300 pointer-events-none" 
              style={{ background: `radial-gradient(circle, ${color}40 0%, transparent 70%)`, transform: 'translateZ(1px)' }}></div>
         
-        {/* Enhanced Billboarded Label */}
+        {/* Billboarded Label */}
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none" 
              style={{ transform: `rotateX(${-dragRotation.x}deg) rotateY(${-dragRotation.y}deg)` }}>
           <span className={`uppercase font-black tracking-widest text-center px-2 drop-shadow-[0_2px_10px_rgba(0,0,0,1)] ${isMoon ? 'text-[8px] text-white/80 group-hover/obj:text-white group-hover/obj:scale-110' : isMonad ? 'text-2xl text-black' : 'text-[11px] text-white group-hover/obj:text-yellow-400 group-hover/obj:scale-105'} transition-all`}>
@@ -111,7 +111,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
       style={{ perspective: '1500px', '--flow-speed': flowSpeed } as any}
       onMouseDown={onMouseDown}
     >
-      {/* 2. Reinstate Navigation Guide - Top Left Corner */}
+      {/* 2. Navigation Guide - Top Left Corner */}
       <div className="absolute top-24 left-10 z-[1000] flex flex-col items-start select-none">
         <button 
           onClick={() => setShowNavPop(!showNavPop)}
@@ -123,18 +123,18 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
           <div className="mt-4 w-80 bg-void/98 border border-blue-900/40 p-8 rounded-3xl backdrop-blur-xl shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
             <h5 className="text-[10px] font-black text-yellow-500 uppercase mb-4 tracking-[0.3em] border-b border-white/5 pb-2">System Mastery Guide</h5>
             <ul className="text-[10px] space-y-3 text-gray-400 leading-relaxed font-medium">
-              <li><span className="text-blue-500 font-black mr-2">DRAG:</span> Move mouse to tilt the volumetric plane.</li>
-              <li><span className="text-blue-500 font-black mr-2">3D:</span> All objects are solid spheres visible from all angles.</li>
-              <li><span className="text-blue-500 font-black mr-2">WARP:</span> Intensifies the randomized starfield and rotation speed.</li>
-              <li><span className="text-blue-500 font-black mr-2">TRACKER:</span> Use the Pitch/Yaw HUD in the bottom right to monitor position and reset.</li>
-              <li><span className="text-blue-500 font-black mr-2">HOVER:</span> Select planets or moons to reveal summary data-bursts.</li>
+              <li><span className="text-blue-500 font-black mr-2">DRAG:</span> Tilt the plane using the mouse.</li>
+              <li><span className="text-blue-500 font-black mr-2">3D SPHERES:</span> Solid volumetric objects react to lighting and tilt.</li>
+              <li><span className="text-blue-500 font-black mr-2">TRACKER:</span> View current orientation and reset to center via HUD.</li>
+              <li><span className="text-blue-500 font-black mr-2">HOVER:</span> Hover over any planet or moon to reveal detailed summary data.</li>
+              <li><span className="text-blue-500 font-black mr-2">WARP:</span> Intensifies starfield randomized trajectories and speeds.</li>
             </ul>
             <button onClick={() => setShowNavPop(false)} className="mt-6 w-full py-2 bg-white/5 rounded-xl text-[9px] text-gray-400 hover:text-white uppercase tracking-widest border border-white/10 font-bold transition-all">Dismiss HUD</button>
           </div>
         )}
       </div>
 
-      {/* 3. Plane Tracker (Pitch & Yaw) - Bottom Right Hand Corner */}
+      {/* 3. Plane Tracker (Pitch & Yaw) - Bottom Right Corner */}
       <div className="absolute bottom-10 right-10 z-[1000] flex flex-col items-end select-none">
         <div 
           onClick={resetView}
@@ -249,7 +249,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
                   <div className="absolute top-0 right-0 w-6 h-6 bg-yellow-400 rounded-full animate-pulse shadow-[0_0_25px_#f5a623] z-30"></div>
                 )}
                 
-                {/* Planet Information Pop-up on Hover */}
+                {/* Planet Information Pop-up */}
                 <div 
                   className="absolute -bottom-36 left-1/2 -translate-x-1/2 w-64 opacity-0 group-hover/obj:opacity-100 transition-all duration-500 bg-black/95 backdrop-blur-xl p-5 rounded-2xl border border-white/10 text-center z-[100] scale-90 group-hover/obj:scale-100 shadow-[0_10px_40px_rgba(0,0,0,0.8)] pointer-events-none"
                   style={{ transform: `translateX(-50%) rotateX(${-dragRotation.x}deg) rotateY(${-dragRotation.y}deg)` }}
@@ -274,7 +274,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
                     >
                       <ThreeDSphere size={52} color={moon.color} label={moon.label} isMoon />
                       
-                      {/* 1. Added Moon Information Pop-up on Hover */}
+                      {/* Moon Information Pop-up on Hover */}
                       <div 
                         className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-48 opacity-0 group-hover/obj:opacity-100 transition-all duration-500 bg-black/95 backdrop-blur-xl p-3 rounded-xl border border-blue-500/30 text-center z-[100] scale-75 group-hover/obj:scale-100 shadow-2xl pointer-events-none"
                         style={{ transform: `translateX(-50%) rotateX(${-dragRotation.x}deg) rotateY(${-dragRotation.y}deg)` }}
@@ -299,7 +299,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
         <div className="w-24 h-24 bg-gradient-radial from-yellow-400 to-orange-700 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(245,166,35,0.4)] transition-transform duration-500 group-hover:scale-110 border-2 border-white/10">
           <span className="text-4xl filter drop-shadow-lg">👁️</span>
         </div>
-        {/* 4. Restored AI Coach Pop-up Label */}
+        {/* Restored AI Coach Pop-up Label */}
         <div 
           className="absolute -bottom-12 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-110 pointer-events-none"
           style={{ transform: `translateX(-50%) rotateX(${-dragRotation.x}deg) rotateY(${-dragRotation.y}deg)` }}

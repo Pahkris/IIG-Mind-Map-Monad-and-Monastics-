@@ -1,11 +1,10 @@
 
 import { GoogleGenAI, Modality } from "@google/genai";
 
-const API_KEY = process.env.API_KEY || "";
-
+// Always initialize GoogleGenAI with process.env.API_KEY directly inside service calls
 export const getAIResponse = async (prompt: string, context: any) => {
   try {
-    const ai = new GoogleGenAI({ apiKey: API_KEY });
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `Context: ${JSON.stringify(context)}\n\nUser Question: ${prompt}`,
@@ -22,7 +21,7 @@ export const getAIResponse = async (prompt: string, context: any) => {
 
 export const speakResponse = async (text: string) => {
   try {
-    const ai = new GoogleGenAI({ apiKey: API_KEY });
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-tts",
       contents: [{ parts: [{ text }] }],
