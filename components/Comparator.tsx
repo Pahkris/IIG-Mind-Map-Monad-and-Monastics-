@@ -1,6 +1,8 @@
 
-import React, { useState } from 'react';
-import { ICONS } from '../constants';
+import React, { useState, useMemo } from 'react';
+import { ICONS, MIND_MAP_DATA } from '../constants';
+import { NodeData } from '../types';
+import { GoogleGenAI, Type } from "@google/genai";
 
 interface ComparisonDetail {
   summary: string;
@@ -98,27 +100,110 @@ const COMPARISON_DB: Record<string, Record<string, ComparisonDetail>> = {
   },
 };
 
+interface AIComparisonResult {
+  topicA: Record<string, ComparisonDetail>;
+  topicB: Record<string, ComparisonDetail>;
+  synthesis: string;
+}
+
 const Comparator: React.FC = () => {
   const [topicA, setTopicA] = useState("The Monad");
   const [topicB, setTopicB] = useState("The Matrix");
+  const [customA, setCustomA] = useState("");
+  const [customB, setCustomB] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [aiResult, setAiResult] = useState<AIComparisonResult | null>(null);
   const [hoveredCell, setHoveredCell] = useState<{ topic: string, attr: string } | null>(null);
 
-  const dataA = COMPARISON_DB[topicA];
-  const dataB = COMPARISON_DB[topicB];
+  const allTopicOptions = useMemo(() => {
+    const labels: string[] = [];
+    const traverse = (node: NodeData) => {
+      labels.push(node.label);
+      node.subNodes?.forEach(traverse);
+    };
+    traverse(MIND_MAP_DATA);
+    labels.push("Custom Subject...");
+    return labels;
+  }, []);
 
   const metrics = ['origin', 'nature', 'goal', 'mechanics', 'methodology'];
 
+  const handleDeepAnalysis = async () => {
+    setIsGenerating(true);
+    const finalA = topicA === "Custom Subject..." ? customA : topicA;
+    const finalB = topicB === "Custom Subject..." ? customB : topicB;
+
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: `Compare these two subjects within the context of SeTs Ryu Monastic philosophy (Gnosticism, Chi Kung, and Cognitive Psychology): Subject A: "${finalA}", Subject B: "${finalB}".`,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              topicA: {
+                type: Type.OBJECT,
+                properties: {
+                  origin: { type: Type.OBJECT, properties: { summary: { type: Type.STRING }, detail: { type: Type.STRING } } },
+                  nature: { type: Type.OBJECT, properties: { summary: { type: Type.STRING }, detail: { type: Type.STRING } } },
+                  goal: { type: Type.OBJECT, properties: { summary: { type: Type.STRING }, detail: { type: Type.STRING } } },
+                  mechanics: { type: Type.OBJECT, properties: { summary: { type: Type.STRING }, detail: { type: Type.STRING } } },
+                  methodology: { type: Type.OBJECT, properties: { summary: { type: Type.STRING }, detail: { type: Type.STRING } } },
+                },
+              },
+              topicB: {
+                type: Type.OBJECT,
+                properties: {
+                  origin: { type: Type.OBJECT, properties: { summary: { type: Type.STRING }, detail: { type: Type.STRING } } },
+                  nature: { type: Type.OBJECT, properties: { summary: { type: Type.STRING }, detail: { type: Type.STRING } } },
+                  goal: { type: Type.OBJECT, properties: { summary: { type: Type.STRING }, detail: { type: Type.STRING } } },
+                  mechanics: { type: Type.OBJECT, properties: { summary: { type: Type.STRING }, detail: { type: Type.STRING } } },
+                  methodology: { type: Type.OBJECT, properties: { summary: { type: Type.STRING }, detail: { type: Type.STRING } } },
+                },
+              },
+              synthesis: { type: Type.STRING, description: "A mystical Master's Synthesis of these two subjects." },
+            },
+            required: ["topicA", "topicB", "synthesis"]
+          }
+        }
+      });
+
+      const parsed = JSON.parse(response.text);
+      setAiResult(parsed);
+    } catch (error) {
+      console.error("Analysis Error:", error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const handleEmailShare = () => {
-    const subject = `SeTs Ryu Gnosis: ${topicA} vs ${topicB}`;
-    const body = `Comparison Analysis:\n\n${topicA} vs ${topicB}\n\nDimensions:\n` + 
-      metrics.map(m => `${m.toUpperCase()}:\n- ${topicA}: ${dataA[m].summary}\n- ${topicB}: ${dataB[m].summary}`).join('\n\n') +
-      `\n\nLearn more at SeTs Ryu Monad Explorer.`;
+    const finalA = topicA === "Custom Subject..." ? customA : topicA;
+    const finalB = topicB === "Custom Subject..." ? customB : topicB;
+    const targetData = aiResult || {
+      topicA: COMPARISON_DB[topicA] || {},
+      topicB: COMPARISON_DB[topicB] || {},
+      synthesis: ""
+    };
+
+    const subject = `SeTs Ryu Gnosis: ${finalA} vs ${finalB}`;
+    const body = `Comparison Analysis:\n\n${finalA} vs ${finalB}\n\nDimensions:\n` + 
+      metrics.map(m => {
+        const a = (targetData.topicA as any)[m];
+        const b = (targetData.topicB as any)[m];
+        return `${m.toUpperCase()}:\n- ${finalA}: ${a?.summary || 'N/A'}\n- ${finalB}: ${b?.summary || 'N/A'}`;
+      }).join('\n\n') +
+      `\n\nSynthesis:\n${targetData.synthesis}\n\nLearn more at SeTs Ryu Monad Explorer.`;
     window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
-  const handleDownloadPDF = () => {
-    window.print();
-  };
+  const currentDisplayA = aiResult?.topicA || COMPARISON_DB[topicA];
+  const currentDisplayB = aiResult?.topicB || COMPARISON_DB[topicB];
+  const currentSynthesis = aiResult?.synthesis || (topicA === "The Monad" && topicB === "The Matrix" 
+    ? "The interaction between The Monad and The Matrix reveals the sacred architecture of your journey. One provides the structure of the classroom, while the other offers the keys to graduation. Sovereignty is found in the synthesis, not the separation."
+    : "");
 
   return (
     <div className="flex flex-col h-full w-full max-w-5xl mx-auto p-8 pt-24 pb-48 overflow-y-auto custom-scrollbar">
@@ -135,7 +220,7 @@ const Comparator: React.FC = () => {
             <ICONS.Share /> Email Share
           </button>
           <button 
-            onClick={handleDownloadPDF}
+            onClick={() => window.print()}
             className="flex items-center gap-2 text-[10px] font-black uppercase bg-white/5 border border-white/10 px-6 py-3 rounded-xl hover:bg-white/10 transition tracking-widest text-orange-400"
           >
             <ICONS.Download /> PDF Download
@@ -143,108 +228,170 @@ const Comparator: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end mb-12">
-        <div className="col-span-1">
-          <label className="block text-[10px] uppercase font-black text-blue-500 mb-4 tracking-widest">Subject Alpha</label>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start mb-12">
+        <div className="col-span-1 space-y-4">
+          <label className="block text-[10px] uppercase font-black text-blue-500 mb-2 tracking-widest">Subject Alpha</label>
           <select 
             value={topicA} 
-            onChange={(e) => setTopicA(e.target.value)}
-            className="w-full bg-void border border-blue-900/40 p-5 rounded-2xl text-white outline-none focus:border-yellow-500 transition shadow-inner font-mystic tracking-wider"
+            onChange={(e) => { setTopicA(e.target.value); setAiResult(null); }}
+            className="w-full bg-void border border-blue-900/40 p-4 rounded-2xl text-white outline-none focus:border-yellow-500 transition shadow-inner font-mystic tracking-wider text-sm"
           >
-            {Object.keys(COMPARISON_DB).map(k => <option key={k} value={k}>{k}</option>)}
+            {allTopicOptions.map(k => <option key={k} value={k}>{k}</option>)}
           </select>
+          {topicA === "Custom Subject..." && (
+            <input 
+              type="text" 
+              placeholder="Enter Custom Gnosis..." 
+              value={customA}
+              onChange={(e) => { setCustomA(e.target.value); setAiResult(null); }}
+              className="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-white text-sm outline-none focus:border-blue-500 transition"
+            />
+          )}
         </div>
-        <div className="col-span-1 flex items-center justify-center p-4">
-          <div className="w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 animate-pulse">
-            <ICONS.Compare />
-          </div>
+        
+        <div className="col-span-1 flex flex-col items-center justify-center pt-8">
+          <button 
+            onClick={handleDeepAnalysis}
+            disabled={isGenerating}
+            className={`w-16 h-16 rounded-full border flex items-center justify-center transition-all duration-500 ${isGenerating ? 'bg-orange-500/20 border-orange-500 animate-spin' : 'bg-blue-500/10 border-blue-500/20 hover:scale-110 hover:bg-blue-500/20 text-blue-400'}`}
+          >
+            {isGenerating ? <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full"></div> : <ICONS.Compare />}
+          </button>
+          <span className="mt-4 text-[9px] text-gray-500 uppercase font-black tracking-widest">Deep Analysis</span>
         </div>
-        <div className="col-span-1">
-          <label className="block text-[10px] uppercase font-black text-orange-500 mb-4 tracking-widest text-right">Subject Beta</label>
+
+        <div className="col-span-1 space-y-4">
+          <label className="block text-[10px] uppercase font-black text-orange-500 mb-2 tracking-widest text-right">Subject Beta</label>
           <select 
             value={topicB} 
-            onChange={(e) => setTopicB(e.target.value)}
-            className="w-full bg-void border border-orange-900/40 p-5 rounded-2xl text-white outline-none focus:border-yellow-500 transition shadow-inner text-right font-mystic tracking-wider"
+            onChange={(e) => { setTopicB(e.target.value); setAiResult(null); }}
+            className="w-full bg-void border border-orange-900/40 p-4 rounded-2xl text-white outline-none focus:border-yellow-500 transition shadow-inner text-right font-mystic tracking-wider text-sm"
           >
-            {Object.keys(COMPARISON_DB).map(k => <option key={k} value={k}>{k}</option>)}
+            {allTopicOptions.map(k => <option key={k} value={k}>{k}</option>)}
           </select>
+          {topicB === "Custom Subject..." && (
+            <input 
+              type="text" 
+              placeholder="Enter Custom Gnosis..." 
+              value={customB}
+              onChange={(e) => { setCustomB(e.target.value); setAiResult(null); }}
+              className="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-white text-sm outline-none focus:border-orange-500 transition text-right"
+            />
+          )}
         </div>
       </div>
 
-      <div className="relative bg-black/40 rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl backdrop-blur-sm">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-white/5">
-              <th className="p-8 text-[11px] uppercase font-black text-gray-500 w-1/4 tracking-widest border-r border-white/5">Dimension</th>
-              <th className="p-8 text-xl font-mystic text-blue-400 tracking-widest text-center border-r border-white/5">{topicA}</th>
-              <th className="p-8 text-xl font-mystic text-orange-400 tracking-widest text-center">{topicB}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
-            {metrics.map(attr => (
-              <tr key={attr} className="group transition-colors">
-                <td className="p-8 text-[11px] uppercase font-mono text-gray-400 font-bold bg-white/[0.01] border-r border-white/5">{attr}</td>
-                
-                {/* Cell for Topic A */}
-                <td 
-                  className="p-0 relative border-r border-white/5 group/cellA"
-                  onMouseEnter={() => setHoveredCell({ topic: topicA, attr })}
-                  onMouseLeave={() => setHoveredCell(null)}
-                >
-                  <div className="p-8 h-full flex flex-col justify-center cursor-help group-hover/cellA:bg-blue-500/5 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <span className="text-[13px] text-gray-200 font-medium leading-relaxed">{dataA[attr].summary}</span>
-                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500/40 group-hover/cellA:bg-blue-400 transition-colors"></div>
-                    </div>
-                    {hoveredCell?.topic === topicA && hoveredCell.attr === attr && (
-                      <div className="absolute top-1/2 left-[105%] -translate-y-1/2 w-80 z-[200] bg-black/95 backdrop-blur-2xl p-6 rounded-3xl border border-blue-500/30 shadow-[0_20px_60px_rgba(0,0,0,0.8)] animate-in fade-in zoom-in-95 duration-200 pointer-events-none">
-                        <div className="text-[10px] text-blue-400 uppercase font-black tracking-widest mb-3 border-b border-white/5 pb-2">Technical Insight</div>
-                        <p className="text-xs text-gray-300 leading-relaxed font-light">{dataA[attr].detail}</p>
-                      </div>
-                    )}
-                  </div>
-                </td>
-
-                {/* Cell for Topic B */}
-                <td 
-                  className="p-0 relative group/cellB"
-                  onMouseEnter={() => setHoveredCell({ topic: topicB, attr })}
-                  onMouseLeave={() => setHoveredCell(null)}
-                >
-                  <div className="p-8 h-full flex flex-col justify-center cursor-help group-hover/cellB:bg-orange-500/5 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <span className="text-[13px] text-gray-200 font-medium leading-relaxed">{dataB[attr].summary}</span>
-                      <div className="w-1.5 h-1.5 rounded-full bg-orange-500/40 group-hover/cellB:bg-orange-400 transition-colors"></div>
-                    </div>
-                    {hoveredCell?.topic === topicB && hoveredCell.attr === attr && (
-                      <div className="absolute top-1/2 right-[105%] -translate-y-1/2 w-80 z-[200] bg-black/95 backdrop-blur-2xl p-6 rounded-3xl border border-orange-500/30 shadow-[0_20px_60px_rgba(0,0,0,0.8)] animate-in fade-in zoom-in-95 duration-200 pointer-events-none">
-                        <div className="text-[10px] text-orange-400 uppercase font-black tracking-widest mb-3 border-b border-white/5 pb-2">Technical Insight</div>
-                        <p className="text-xs text-gray-300 leading-relaxed font-light">{dataB[attr].detail}</p>
-                      </div>
-                    )}
-                  </div>
-                </td>
+      {/* Primary Overview Table (Hardcoded DB or fallback) */}
+      {!aiResult && currentDisplayA && currentDisplayB && (
+        <div className="relative bg-black/40 rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl backdrop-blur-sm mb-12">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-white/5">
+                <th className="p-8 text-[11px] uppercase font-black text-gray-500 w-1/4 tracking-widest border-r border-white/5">Dimension</th>
+                <th className="p-8 text-xl font-mystic text-blue-400 tracking-widest text-center border-r border-white/5">{topicA === "Custom Subject..." ? customA : topicA}</th>
+                <th className="p-8 text-xl font-mystic text-orange-400 tracking-widest text-center">{topicB === "Custom Subject..." ? customB : topicB}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="mt-12 p-10 bg-gradient-to-br from-blue-900/10 to-transparent rounded-[2.5rem] border border-blue-800/20 relative overflow-hidden group min-h-[250px]">
-        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-          <ICONS.Brain />
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {metrics.map(attr => (
+                <tr key={attr} className="group transition-colors">
+                  <td className="p-8 text-[11px] uppercase font-mono text-gray-400 font-bold bg-white/[0.01] border-r border-white/5">{attr}</td>
+                  <td className="p-8 border-r border-white/5 group-hover:bg-blue-500/5 transition-colors">
+                    <span className="text-[13px] text-gray-200 font-medium leading-relaxed">{(currentDisplayA as any)?.[attr]?.summary || 'N/A'}</span>
+                  </td>
+                  <td className="p-8 group-hover:bg-orange-500/5 transition-colors text-right">
+                    <span className="text-[13px] text-gray-200 font-medium leading-relaxed">{(currentDisplayB as any)?.[attr]?.summary || 'N/A'}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <h4 className="text-[11px] font-black text-blue-400 uppercase tracking-[0.3em] mb-4">Master's Synthesis</h4>
-        <div className="relative z-10">
-          <p className="italic text-base text-gray-300 leading-relaxed font-medium">
-            "The interaction between <span className="text-blue-400 underline decoration-blue-500/30 underline-offset-4">{topicA}</span> and <span className="text-orange-400 underline decoration-orange-500/30 underline-offset-4">{topicB}</span> reveals the sacred architecture of your journey. One provides the structure of the classroom, while the other offers the keys to graduation. Sovereignty is found in the synthesis, not the separation."
-          </p>
-          <div className="mt-8 flex items-center gap-4 text-[10px] text-gray-500 uppercase font-black tracking-widest">
-            <div className="w-8 h-px bg-gray-700"></div>
-            SeTs Ryu Monastic Archives
+      )}
+
+      {/* Master's Synthesis Box */}
+      {currentSynthesis && (
+        <div className="mt-8 p-10 bg-gradient-to-br from-blue-900/10 via-black to-transparent rounded-[2.5rem] border border-blue-800/20 relative overflow-hidden group min-h-[200px]">
+          <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+            <ICONS.Brain />
+          </div>
+          <h4 className="text-[11px] font-black text-blue-400 uppercase tracking-[0.3em] mb-4">Master's Synthesis</h4>
+          <div className="relative z-10">
+            <p className="italic text-base text-gray-300 leading-relaxed font-medium">
+              {currentSynthesis}
+            </p>
+            <div className="mt-8 flex items-center gap-4 text-[10px] text-gray-500 uppercase font-black tracking-widest">
+              <div className="w-8 h-px bg-gray-700"></div>
+              SeTs Ryu Monastic Archives
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Detailed Result Table (Longer results below synthesis) */}
+      {aiResult && (
+        <div className="mt-16 animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="h-px flex-1 bg-white/5"></div>
+            <h3 className="text-[11px] uppercase font-black text-yellow-500 tracking-[0.4em]">Deep Comparative Matrix</h3>
+            <div className="h-px flex-1 bg-white/5"></div>
+          </div>
+
+          <div className="relative bg-[#050505] rounded-[3rem] border border-white/10 overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.8)] backdrop-blur-xl">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-white/5">
+                  <th className="p-10 text-[11px] uppercase font-black text-gray-600 w-1/5 tracking-[0.2em] border-r border-white/5">Layer</th>
+                  <th className="p-10 text-2xl font-mystic text-blue-400 tracking-[0.1em] text-center border-r border-white/5">
+                    {topicA === "Custom Subject..." ? customA : topicA}
+                  </th>
+                  <th className="p-10 text-2xl font-mystic text-orange-400 tracking-[0.1em] text-center">
+                    {topicB === "Custom Subject..." ? customB : topicB}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {metrics.map(attr => (
+                  <tr key={attr} className="group transition-all">
+                    <td className="p-10 text-[10px] uppercase font-black text-gray-500 bg-white/[0.01] border-r border-white/5 align-top pt-12">{attr}</td>
+                    
+                    <td 
+                      className="p-10 relative border-r border-white/5 group/cellA cursor-help hover:bg-blue-500/[0.03]"
+                      onMouseEnter={() => setHoveredCell({ topic: 'A', attr })}
+                      onMouseLeave={() => setHoveredCell(null)}
+                    >
+                      <div className="flex flex-col gap-4">
+                        <span className="text-[14px] text-white font-bold leading-relaxed">{aiResult.topicA[attr].summary}</span>
+                        <p className="text-[11px] text-gray-400 leading-relaxed font-light">{aiResult.topicA[attr].detail}</p>
+                      </div>
+                    </td>
+
+                    <td 
+                      className="p-10 relative group/cellB cursor-help hover:bg-orange-500/[0.03]"
+                      onMouseEnter={() => setHoveredCell({ topic: 'B', attr })}
+                      onMouseLeave={() => setHoveredCell(null)}
+                    >
+                      <div className="flex flex-col gap-4 text-right">
+                        <span className="text-[14px] text-white font-bold leading-relaxed">{aiResult.topicB[attr].summary}</span>
+                        <p className="text-[11px] text-gray-400 leading-relaxed font-light">{aiResult.topicB[attr].detail}</p>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {isGenerating && (
+        <div className="mt-12 flex flex-col items-center gap-6 animate-pulse">
+          <div className="flex gap-2">
+            {[1,2,3].map(i => <div key={i} className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: `${i*0.2}s`}}></div>)}
+          </div>
+          <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">Consulting the Akashic Records...</p>
+        </div>
+      )}
     </div>
   );
 };
