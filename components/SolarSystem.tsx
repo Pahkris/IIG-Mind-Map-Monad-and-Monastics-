@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { NodeData } from '../types';
 import { COLORS, ICONS } from '../constants';
@@ -9,27 +8,42 @@ interface SolarSystemProps {
   visitedNodes: string[];
   warpFactor: number;
   setWarpFactor: (val: number) => void;
+  isWarping?: boolean;
 }
 
-const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNodes, warpFactor, setWarpFactor }) => {
+const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNodes, warpFactor, setWarpFactor, isWarping = false }) => {
   const [rotation, setRotation] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [dragRotation, setDragRotation] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [showNavPop, setShowNavPop] = useState(false);
+  const [streaks, setStreaks] = useState<{ id: number, x: number, y: number, color: string, speed: number, length: number }[]>([]);
   const lastMousePos = useRef({ x: 0, y: 0 });
 
-  const SYSTEM_CENTER_Z = 500;
   const rotationIncrement = useMemo(() => 0.15 * warpFactor, [warpFactor]);
-  const flowSpeed = useMemo(() => `${1.2 / Math.max(1, warpFactor)}s`, [warpFactor]);
 
   useEffect(() => {
     if (isPaused) return;
-    const interval = setInterval(() => {
-      setRotation(prev => (prev + rotationIncrement) % 360);
-    }, 16);
+    const interval = setInterval(() => setRotation(prev => (prev + rotationIncrement) % 360), 16);
     return () => clearInterval(interval);
   }, [isPaused, rotationIncrement]);
+
+  useEffect(() => {
+    if (isWarping) {
+      const colors = ['#3b82f6', '#f5a623', '#ffffff', '#a855f7'];
+      const newStreaks = Array.from({ length: 65 }).map((_, i) => ({
+        id: Math.random(),
+        x: (Math.random() - 0.5) * 2800,
+        y: (Math.random() - 0.5) * 2800,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        speed: 0.35 + Math.random() * 0.45,
+        length: 150 + Math.random() * 350
+      }));
+      setStreaks(newStreaks);
+      const timer = setTimeout(() => setStreaks([]), 850);
+      return () => clearTimeout(timer);
+    }
+  }, [isWarping]);
 
   const onMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
@@ -40,10 +54,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
     if (!isDragging) return;
     const deltaX = e.clientX - lastMousePos.current.x;
     const deltaY = e.clientY - lastMousePos.current.y;
-    setDragRotation(prev => ({
-      x: Math.max(-80, Math.min(80, prev.x + deltaY * 0.2)),
-      y: prev.y + deltaX * 0.2
-    }));
+    setDragRotation(prev => ({ x: Math.max(-80, Math.min(80, prev.x + deltaY * 0.2)), y: prev.y + deltaX * 0.2 }));
     lastMousePos.current = { x: e.clientX, y: e.clientY };
   }, [isDragging]);
 
@@ -58,46 +69,18 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
     };
   }, [onMouseMove]);
 
-  const resetView = () => setDragRotation({ x: 0, y: 0 });
-
-  const ThreeDSphere = ({ size, color, label, isMoon = false, isMonad = false }: { size: number, color: string, label: string, isMoon?: boolean, isMonad?: boolean }) => {
-    const shadowColor = '#000000';
-    const textureUrl = 'https://www.transparenttextures.com/patterns/carbon-fibre.png';
-    
+  const ThreeDSphere = ({ size, color, label, isMonad = false }: any) => {
     const bg = isMonad 
       ? `radial-gradient(circle at 30% 30%, #ffffff 0%, #d1d1d1 40%, #888888 70%, #444444 100%)` 
-      : `radial-gradient(circle at 35% 35%, ${color} 0%, ${color}CC 30%, ${shadowColor} 90%)`;
+      : `radial-gradient(circle at 35% 35%, ${color} 0%, ${color}CC 30%, #000 90%)`;
 
     return (
       <div className="relative flex items-center justify-center transition-all duration-500 group-hover/obj:scale-125" style={{ width: size, height: size, transformStyle: 'preserve-3d' }}>
-        {/* Spherical Layers */}
-        <div className="absolute inset-0 rounded-full overflow-hidden ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.8)]" 
-             style={{ background: bg, transform: 'translateZ(0px)' }}>
-          <div className="absolute inset-0 opacity-20 mix-blend-overlay bg-center bg-cover" style={{ backgroundImage: `url(${textureUrl})` }}></div>
-        </div>
-        
-        <div className="absolute inset-0 rounded-full" 
-             style={{ background: bg, transform: 'rotateY(90deg)', filter: 'brightness(0.6)' }}></div>
-        <div className="absolute inset-0 rounded-full" 
-             style={{ background: bg, transform: 'rotateX(90deg)', filter: 'brightness(0.4)' }}></div>
-
-        {/* Highlight & Glow */}
-        <div className="absolute inset-0 rounded-full pointer-events-none opacity-60" 
-             style={{ background: 'radial-gradient(circle at 30% 30%, white 0%, transparent 40%)', transform: 'translateZ(2px)' }}></div>
-        
-        <div className="absolute inset-0 rounded-full ring-2 ring-white/5 opacity-40 group-hover/obj:opacity-100 transition-opacity" 
-             style={{ transform: 'translateZ(-1px)', boxShadow: `0 0 25px ${color}60` }}></div>
-        
-        {/* Robust Billboarded Label */}
-        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none" 
-             style={{ transform: `rotateX(${-dragRotation.x}deg) rotateY(${-dragRotation.y}deg)` }}>
-          <span className={`uppercase font-black tracking-[0.2em] text-center px-2 drop-shadow-[0_2px_10px_rgba(0,0,0,1)] transition-all duration-300 ${
-            isMoon 
-              ? 'text-[8px] text-white/80 group-hover/obj:text-white' 
-              : isMonad 
-                ? 'text-2xl text-white group-hover/obj:text-yellow-400 font-mystic' 
-                : 'text-[11px] text-white group-hover/obj:text-yellow-400'
-          }`}>
+        <div className="absolute inset-0 rounded-full overflow-hidden ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.8)]" style={{ background: bg }} />
+        <div className="absolute inset-0 rounded-full" style={{ background: bg, transform: 'rotateY(90deg)', filter: 'brightness(0.6)' }} />
+        <div className="absolute inset-0 rounded-full" style={{ background: bg, transform: 'rotateX(90deg)', filter: 'brightness(0.4)' }} />
+        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none" style={{ transform: `rotateX(${-dragRotation.x}deg) rotateY(${-dragRotation.y}deg)` }}>
+          <span className={`uppercase font-black tracking-[0.2em] text-center px-2 drop-shadow-[0_2px_10px_rgba(0,0,0,1)] text-white group-hover/obj:text-yellow-400 transition-colors ${isMonad ? 'text-2xl font-mystic' : 'text-[11px]'}`}>
             {label}
           </span>
         </div>
@@ -106,226 +89,39 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
   };
 
   return (
-    <div 
-      className="relative w-full h-full flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing" 
-      style={{ perspective: '1500px', '--flow-speed': flowSpeed } as any}
-      onMouseDown={onMouseDown}
-    >
-      <div className="absolute top-24 left-10 z-[1000] flex flex-col items-start select-none">
-        <button 
-          onClick={() => setShowNavPop(!showNavPop)}
-          className="text-[11px] text-blue-400 border-b border-blue-900/50 hover:text-white hover:border-blue-400 transition-all uppercase tracking-widest font-black flex items-center gap-2"
-        >
-          {showNavPop ? <ICONS.Close /> : <ICONS.ChevronRight />}
-          Navigation Guide
-        </button>
-        {showNavPop && (
-          <div className="mt-4 w-80 bg-void/98 border border-blue-900/40 p-8 rounded-3xl backdrop-blur-xl shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
-            <h5 className="text-[10px] font-black text-yellow-500 uppercase mb-4 tracking-[0.3em] border-b border-white/5 pb-2">System Mastery Guide</h5>
-            <ul className="text-[10px] space-y-3 text-gray-400 leading-relaxed font-medium">
-              <li><span className="text-blue-500 font-black mr-2">DRAG:</span> Tilt the plane using the mouse to see 3D objects from any side.</li>
-              <li><span className="text-blue-500 font-black mr-2">3D SPHERES:</span> Objects feature realistic shading and billboards.</li>
-              <li><span className="text-blue-500 font-black mr-2">TRACKER:</span> View orientation and reset to center via the Bottom-Right HUD.</li>
-              <li><span className="text-blue-500 font-black mr-2">HOVER:</span> Labels turn yellow and objects zoom for emphasis.</li>
-            </ul>
-            <button onClick={() => setShowNavPop(false)} className="mt-6 w-full py-2 bg-white/5 rounded-xl text-[9px] text-gray-400 hover:text-white uppercase tracking-widest border border-white/10 font-bold transition-all">Minimize HUD</button>
-          </div>
-        )}
+    <div className="relative w-full h-full flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing" style={{ perspective: '1500px' }} onMouseDown={onMouseDown}>
+      <div className="absolute inset-0 z-[150] pointer-events-none" style={{ transformStyle: 'preserve-3d' }}>
+        {streaks.map(s => (
+          <div key={s.id} className="warp-trail-streak" style={{ '--tx': `${s.x}px`, '--ty': `${s.y}px`, '--color': s.color, height: `${s.length}px`, animationDuration: `${s.speed}s`, left: '50%', top: '50%' } as any} />
+        ))}
       </div>
 
-      <div className="absolute bottom-10 right-10 z-[1000] flex flex-col items-end select-none">
-        <div 
-          onClick={resetView}
-          className="group cursor-pointer bg-black/60 backdrop-blur-md border border-blue-500/30 p-4 rounded-xl flex items-center gap-6 shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:border-blue-500/60 transition-all"
-        >
-          <div className="flex flex-col text-right">
-            <div className="flex justify-end gap-4 mb-2">
-              <span className="text-[10px] text-blue-400 font-mono uppercase tracking-widest">Pitch:</span>
-              <span className="text-[10px] text-white font-mono">{dragRotation.x.toFixed(1)}°</span>
-            </div>
-            <div className="flex justify-end gap-4">
-              <span className="text-[10px] text-blue-400 font-mono uppercase tracking-widest">Yaw:</span>
-              <span className="text-[10px] text-white font-mono">{dragRotation.y.toFixed(1)}°</span>
-            </div>
-            <div className="mt-3 text-[9px] text-yellow-500 uppercase font-black tracking-widest group-hover:text-white transition-colors">
-              Reset View Origin
-            </div>
-          </div>
-
-          <div className="relative w-16 h-16 border border-white/10 rounded-full flex items-center justify-center overflow-hidden">
-            <div className="absolute top-0 bottom-0 left-1/2 w-px bg-blue-500/30"></div>
-            <div className="absolute left-0 right-0 top-1/2 h-px bg-blue-500/30"></div>
-            <div 
-              className="absolute w-3 h-3 bg-blue-500 rounded-full shadow-[0_0_10px_#3b82f6] transition-transform duration-100"
-              style={{ transform: `translate(${(dragRotation.y / 90) * 32}px, ${(-dragRotation.x / 90) * 32}px)` }}
-            ></div>
-            <div className="absolute inset-0 border-2 border-dashed border-white/5 rounded-full animate-spin-slow"></div>
-          </div>
-        </div>
-      </div>
-
-      <div 
-        className="relative w-full h-full flex items-center justify-center transition-transform duration-300"
-        style={{ 
-          transform: `rotateX(${dragRotation.x}deg) rotateY(${dragRotation.y}deg)`,
-          transformStyle: 'preserve-3d'
-        }}
-      >
-        {/* Monad Monastics Central Sphere */}
-        <div 
-          onClick={() => onNodeClick(data)}
-          className="group/obj absolute w-72 h-72 flex items-center justify-center cursor-pointer transition-all duration-700"
-          style={{ 
-            zIndex: SYSTEM_CENTER_Z,
-            transform: 'translate3d(0, 0, 0)',
-            transformStyle: 'preserve-3d'
-          }}
-        >
+      <div className="relative w-full h-full flex items-center justify-center transition-transform duration-300" style={{ transform: `rotateX(${dragRotation.x}deg) rotateY(${dragRotation.y}deg)`, transformStyle: 'preserve-3d' }}>
+        <div onClick={() => onNodeClick(data)} className="group/obj absolute w-72 h-72 flex items-center justify-center cursor-pointer" style={{ zIndex: 500, transformStyle: 'preserve-3d' }}>
           <ThreeDSphere size={280} color="#ffffff" label={data.label} isMonad />
-          <div className="absolute inset-0 bg-white/5 rounded-full animate-pulse pointer-events-none ring-2 ring-white/10"></div>
         </div>
 
-        <div className="absolute w-[950px] h-[950px] border border-blue-500/10 rounded-full pointer-events-none" 
-          style={{ transform: 'rotateX(90deg) translateZ(-50px)', zIndex: 1 }}></div>
-
         {data.subNodes?.map((planet, index) => {
           const angle = (index * (360 / data.subNodes!.length) + rotation) * (Math.PI / 180);
-          const radius = 380;
-          const x = Math.cos(angle) * radius;
+          const x = Math.cos(angle) * 380;
           const y = Math.sin(angle) * 100;
-          const z = Math.sin(angle) * radius;
-          const depthFactor = (z + radius) / (radius * 2);
-          const strokeWidth = 2 + depthFactor * 3;
-          const opacity = 0.4 + depthFactor * 0.4;
-
+          const z = Math.sin(angle) * 380;
           return (
-            <div 
-              key={`link-container-${planet.id}`}
-              className="absolute pointer-events-none"
-              style={{ 
-                width: '100%', height: '100%', 
-                transformStyle: 'preserve-3d',
-                zIndex: Math.round(z/2 + SYSTEM_CENTER_Z)
-              }}
-            >
-              <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
-                <line x1="50%" y1="50%" x2={`${50 + (x / 14)}%`} y2={`${50 + (y / 14)}%`} stroke={planet.color} strokeWidth={strokeWidth} strokeOpacity={opacity * 0.4} />
-                <line className="link-energy" x1="50%" y1="50%" x2={`${50 + (x / 14)}%`} y2={`${50 + (y / 14)}%`} stroke={planet.color} strokeWidth={strokeWidth * 1.5} strokeDasharray="20 40" strokeLinecap="round" strokeOpacity={opacity * 0.8} />
-              </svg>
-            </div>
-          );
-        })}
-
-        {data.subNodes?.map((planet, index) => {
-          const angle = (index * (360 / data.subNodes!.length) + rotation) * (Math.PI / 180);
-          const radius = 380;
-          const x = Math.cos(angle) * radius;
-          const y = Math.sin(angle) * 100;
-          const z = Math.sin(angle) * radius;
-          const isVisited = visitedNodes.includes(planet.id);
-
-          return (
-            <div 
-              key={planet.id}
-              className="absolute transition-all duration-500 pointer-events-none"
-              style={{ 
-                transform: `translate3d(${x}px, ${y}px, ${z}px) scale(${1 + (z / 1200)})`,
-                zIndex: Math.round(z + SYSTEM_CENTER_Z),
-                transformStyle: 'preserve-3d'
-              }}
-            >
-              <div 
-                className="relative pointer-events-auto cursor-pointer group/obj transition-all duration-500" 
-                onClick={() => onNodeClick(planet)}
-              >
+            <div key={planet.id} className="absolute" style={{ transform: `translate3d(${x}px, ${y}px, ${z}px) scale(${1 + (z / 1200)})`, zIndex: Math.round(z + 500), transformStyle: 'preserve-3d' }}>
+              <div className="relative cursor-pointer group/obj" onClick={() => onNodeClick(planet)}>
                 <ThreeDSphere size={128} color={planet.color} label={planet.label} />
-                {isVisited && (
-                  <div className="absolute top-0 right-0 w-6 h-6 bg-yellow-400 rounded-full animate-pulse shadow-[0_0_25px_#f5a623] z-30"></div>
-                )}
-                <div 
-                  className="absolute -bottom-36 left-1/2 -translate-x-1/2 w-64 opacity-0 group-hover/obj:opacity-100 transition-all duration-500 bg-black/95 backdrop-blur-xl p-5 rounded-2xl border border-white/10 text-center z-[100] scale-90 group-hover/obj:scale-100 shadow-[0_10px_40px_rgba(0,0,0,0.8)] pointer-events-none"
-                  style={{ transform: `translateX(-50%) rotateX(${-dragRotation.x}deg) rotateY(${-dragRotation.y}deg)` }}
-                >
-                  <h4 className="text-[12px] font-black text-yellow-500 mb-2 uppercase tracking-widest">{planet.label}</h4>
-                  <p className="text-[10px] text-gray-400 leading-relaxed font-medium">{planet.description}</p>
-                </div>
               </div>
-
-              {planet.subNodes?.map((moon, mIdx) => {
-                const mAngle = (mIdx * (360 / planet.subNodes!.length) + rotation * 2.8) * (Math.PI / 180);
-                const mRadius = 115; 
-                const mx = Math.cos(mAngle) * mRadius;
-                const my = Math.sin(mAngle) * mRadius;
-
-                return (
-                  <div key={moon.id} className="absolute pointer-events-none" style={{ transform: `translate(${mx - 24}px, ${my - 24}px)`, transformStyle: 'preserve-3d' }}>
-                    <div 
-                      onClick={(e) => { e.stopPropagation(); onNodeClick(moon); }}
-                      className="relative pointer-events-auto cursor-pointer group/obj transition-transform duration-300"
-                    >
-                      <ThreeDSphere size={52} color={moon.color} label={moon.label} isMoon />
-                      <div 
-                        className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-48 opacity-0 group-hover/obj:opacity-100 transition-all duration-500 bg-black/95 backdrop-blur-xl p-3 rounded-xl border border-blue-500/30 text-center z-[100] scale-75 group-hover/obj:scale-100 shadow-2xl pointer-events-none"
-                        style={{ transform: `translateX(-50%) rotateX(${-dragRotation.x}deg) rotateY(${-dragRotation.y}deg)` }}
-                      >
-                        <h4 className="text-[9px] font-black text-blue-400 mb-1 uppercase tracking-widest">{moon.label}</h4>
-                        <p className="text-[8px] text-gray-400 leading-tight italic">{moon.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
             </div>
           );
         })}
       </div>
 
-      <div 
-        className="absolute top-32 right-32 z-[1000] cursor-pointer group animate-gentle-glow rounded-full"
-        onClick={() => onNodeClick({ id: 'ai-coach', label: 'AI Coach', type: 'coach', color: COLORS.brandYellow, description: 'Ask the Master.', content: [] })}
-      >
-        <div className="w-24 h-24 bg-gradient-radial from-yellow-400 to-orange-700 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(245,166,35,0.4)] transition-transform duration-500 group-hover:scale-110 border-2 border-white/10">
-          <span className="text-4xl filter drop-shadow-lg">👁️</span>
+      <div className="absolute bottom-10 left-10 z-[1000] bg-black/85 p-6 rounded-3xl border border-white/10 w-80 shadow-2xl">
+        <div className="flex justify-between items-center mb-4">
+           <span className="text-[10px] uppercase font-black text-blue-400 tracking-[0.2em]">Warp Factor</span>
+           <span className="text-[11px] font-mono text-white bg-blue-900/40 px-3 py-1 rounded-full border border-blue-500/30">x{warpFactor.toFixed(1)}</span>
         </div>
-        <div 
-          className="absolute -bottom-12 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-110 pointer-events-none"
-          style={{ transform: `translateX(-50%) rotateX(${-dragRotation.x}deg) rotateY(${-dragRotation.y}deg)` }}
-        >
-          <div className="bg-black/90 backdrop-blur-md px-4 py-2 rounded-xl border border-yellow-500/30 text-[10px] text-yellow-500 uppercase font-black tracking-widest shadow-2xl">
-            SeTs Ryu AI Coach
-          </div>
-        </div>
-      </div>
-
-      <div className="absolute bottom-10 left-10 z-[1000] flex flex-col gap-4">
-        <div className="bg-black/85 backdrop-blur-xl p-6 rounded-3xl border border-white/10 w-80 shadow-[0_20px_50px_rgba(0,0,0,0.8)] animate-in fade-in slide-in-from-left-4 duration-500">
-           <div className="flex justify-between items-center mb-4">
-             <div className="flex items-center gap-3">
-               <span className="text-[10px] uppercase font-black text-blue-400 tracking-[0.2em]">Warp Factor</span>
-               <button 
-                 onClick={() => setIsPaused(!isPaused)}
-                 className="p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-blue-400 hover:text-white transition-all shadow-inner active:scale-95"
-                 title={isPaused ? "Resume Rotation" : "Pause Rotation"}
-               >
-                 {isPaused ? <ICONS.Play /> : <ICONS.Pause />}
-               </button>
-             </div>
-             <span className="text-[11px] font-mono text-white bg-blue-900/40 px-3 py-1 rounded-full border border-blue-500/30 font-bold">x{warpFactor.toFixed(1)}</span>
-           </div>
-           
-           <div className="relative px-1">
-             <input 
-               type="range" min="0.5" max="10" step="0.1" value={warpFactor} 
-               onChange={(e) => setWarpFactor(parseFloat(e.target.value))}
-               className="w-full h-1 cursor-pointer accent-orange-500"
-             />
-           </div>
-           
-           <div className="flex justify-between mt-3">
-             <span className="text-[8px] text-gray-500 uppercase font-black tracking-widest">Sub-Light</span>
-             <span className="text-[8px] text-gray-500 uppercase font-black tracking-widest">Gnosis Drive</span>
-           </div>
-        </div>
+        <input type="range" min="0.5" max="10" step="0.1" value={warpFactor} onChange={(e) => setWarpFactor(parseFloat(e.target.value))} className="w-full h-1 cursor-pointer accent-orange-500" />
       </div>
     </div>
   );

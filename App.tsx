@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { NodeData, UserProgress } from './types';
 import { MIND_MAP_DATA, COLORS, ICONS } from './constants';
@@ -211,6 +210,7 @@ const App: React.FC = () => {
             visitedNodes={progress.visitedNodes} 
             warpFactor={warpFactor}
             setWarpFactor={setWarpFactor}
+            isWarping={isWormhole}
           />
         )}
         {activeTab === 'library' && <ResourcesLibrary />}
