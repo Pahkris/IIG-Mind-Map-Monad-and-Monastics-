@@ -58,22 +58,9 @@ export const LIBRARY_RESOURCES: LibraryItem[] = [
     type: "Research", 
     description: "Scientific study on the evolutionary origins of agency detection.",
     internalContent: "Abstract: Our research suggests that religious belief is a byproduct of the Hypersensitive Agency Detection Device (HADD). By understanding this cognitive adaptation, practitioners can 're-hack' their neurology to differentiate between false agency (simulation scripts) and true Gnostic intent."
-  },
-  {
-    title: "The Monad Treatise",
-    link: "https://1e485c5d-728a-491a-ad8d-5ec1726259b6.usrfiles.com/ugd/1e485c_5559b2cce019405793c9f6b3981098ca.pdf",
-    type: "Document",
-    description: "Original source text on the nature of the Absolute Monad."
-  },
-  {
-    title: "Gnostic Commentary Source",
-    link: "https://1e485c5d-728a-491a-ad8d-5ec1726259b6.usrfiles.com/ugd/1e485c_e784ac9d3e8c4fcfb13ff7520b9a4785.pdf",
-    type: "Document",
-    description: "Secondary source commentary on the intersection of faith and biology."
   }
 ];
 
-// Define the central hub data structure used by SolarSystem
 export const MIND_MAP_DATA: NodeData = {
   id: 'monad',
   label: 'The Monad',
@@ -88,35 +75,51 @@ export const MIND_MAP_DATA: NodeData = {
   ],
   detailedInfo: {
     0: {
-      title: "The Essence of Gnosis",
-      explanation: "Gnosis is an internal awakening to the reality of the Monad. It is not something that can be taught through external scriptures alone; it is a remembrance of one's origin before the simulation began.",
-      exercises: [
-        "Internal Silence: Observing thoughts without identifying as the thinker.",
-        "The Mirror of the Soul: Reflecting on the source of consciousness."
+      title: "Gnosis vs. Belief",
+      context: "In SeTs Ryu, Gnosis is the unmediated experience of the Absolute. Belief is a cognitive structure built on external authority, whereas Gnosis is an internal recognition of truth.",
+      techniques: [
+        "Silent contemplation of the 'I AM' presence.",
+        "Reflecting on the nature of thought without judgment."
+      ],
+      mindsets: [
+        "Shift from seeking answers to recognizing presence.",
+        "Abandoning dogmatic reliance for direct experience."
       ]
     },
     1: {
       title: "The Divine Spark",
-      explanation: "Within every sentient being lies a 'Spark' of the Monad, currently obscured by the dense layers of the Matrix and the egoic mind. Gnosis is the ignition of this spark.",
-      exercises: [
-        "Flame Focus: Visualizing the internal spark expanding to consume cognitive fog.",
-        "Aura Shielding: Recognizing the energetic boundary between the Spark and the Simulation."
+      context: "Every living being contains a fragment of the infinite Monad. This spark is the true essence, often buried under layers of biological and social conditioning.",
+      techniques: [
+        "Center-point breathing: focusing on the energetic core.",
+        "Aura condensation: imagining the light within becoming denser."
+      ],
+      mindsets: [
+        "Recognizing oneself as a localized point of the Infinite.",
+        "Valuing internal divinity over external validation."
       ]
     },
     2: {
       title: "The Avatar Protocol",
-      explanation: "The physical body is a sophisticated bio-terminal (avatar) designed to interact with the Matrix simulation. The true 'User' is the Monad-derived Spark.",
-      exercises: [
-        "Third-Person Observation: Viewing bodily sensations as data points on a screen.",
-        "Decoupling: Practicing the separation of 'I am' from 'I feel'."
+      context: "The biological body is an interface, a 'costume' for the spark to interact with the material simulation. It functions on evolutionary survival code.",
+      techniques: [
+        "Objectified body scanning: viewing physical sensations as data.",
+        "Pattern interrupt: acting against automatic biological impulses."
+      ],
+      mindsets: [
+        "Seeing the body as a high-fidelity tool, not the self.",
+        "Maintaining neutrality toward the avatar's aging and scripts."
       ]
     },
     3: {
-      title: "Navigating the Pleroma",
-      explanation: "The Pleroma is the 'Fullness' or the totality of the Monad's emanations. It is the destination for the liberated spark.",
-      exercises: [
-        "Deep Void Meditation: Entering the space between heartbeats.",
-        "Emanation Recognition: Identifying the divine geometry in nature."
+      title: "Infinite Silence",
+      context: "The Pleroma is the 'Fullness' or the ocean of silence from which all emanates. To return to the Monad is to merge back into this silence.",
+      techniques: [
+        "Entering the gap between thoughts.",
+        "Meditation on the 'Empty Space' that contains all things."
+      ],
+      mindsets: [
+        "Silence as power, not absence.",
+        "Resting in the unmanifested as a source of strength."
       ]
     }
   },
@@ -128,26 +131,92 @@ export const MIND_MAP_DATA: NodeData = {
       color: '#4ADE80',
       description: 'The simulated reality governed by cognitive scripts and emotional loops.',
       content: [
-        "Identifying the Demiurge: The Architect of limited perception.",
-        "Archons as feedback loops in the human psyche.",
-        "Breaking the cycle of Samsara through awareness."
+        "Identifying the Demiurge: The Architect.",
+        "Archons as feedback loops.",
+        "Breaking the cycle of Samsara."
       ],
+      detailedInfo: {
+        0: {
+          title: "The Demiurge Architect",
+          context: "The Demiurge is the 'blind' designer of the physical simulation. It is the personification of the ego's need to control and categorize reality.",
+          techniques: [
+            "Deconstructing daily 'necessities' as simulated scripts.",
+            "Identifying the 'Inner Architect' that creates mental boxes."
+          ],
+          mindsets: [
+            "Moving beyond the need for a hierarchical creator.",
+            "Embracing the chaos that exists outside the Demiurge's order."
+          ]
+        },
+        1: {
+          title: "Archonic Feedback Loops",
+          context: "Archons are psychological and energetic control mechanisms. They feed on fear, guilt, and the low-frequency vibrations of the simulation.",
+          techniques: [
+            "Emotional neutrality practice during high-stress triggers.",
+            "Identifying repetitive fear-based thought patterns."
+          ],
+          mindsets: [
+            "Refusing to provide 'Loosh' (emotional energy) to the system.",
+            "Developing a thick, resonant field of calm."
+          ]
+        },
+        2: {
+          title: "Breaking Samsara",
+          context: "Samsara is the closed loop of material reincarnation. Breaking it requires the realization that there is nowhere to 'go' but within.",
+          techniques: [
+            "Visualization of the exit from the planetary energy grid.",
+            "Daily practice of non-attachment to the 'Character's' legacy."
+          ],
+          mindsets: [
+            "Seeing the end of the simulation as a graduation.",
+            "Letting go of the desire for material repetition."
+          ]
+        }
+      },
       subNodes: [
         {
           id: 'archons',
           label: 'Archons',
           type: 'moon',
-          color: '#86EFAC', // Lighter Green to match Matrix
+          color: '#86EFAC',
           description: 'Systems of control that feed on low-frequency emotional states.',
-          content: ["Detection of external agency scripts."]
+          content: ["Detection of external agency scripts."],
+          detailedInfo: {
+            0: {
+              title: "Agency Script Detection",
+              context: "Archons often hijack our 'Agency Detection' system, making us feel watched or manipulated to trigger fear.",
+              techniques: [
+                "Questioning the source of sudden paranoid thoughts.",
+                "Reality-testing external signals for validity."
+              ],
+              mindsets: [
+                "Critical thinking as a shield against the Archons.",
+                "Sovereignty over one's own narrative."
+              ]
+            }
+          }
         },
         {
           id: 'demiurge',
           label: 'Demiurge',
           type: 'moon',
-          color: '#BBF7D0', // Lightest Green to match Matrix
+          color: '#BBF7D0',
           description: 'The personification of the egoic world-building instinct.',
-          content: ["Deconstructing the 'Blind God' archetype."]
+          content: ["Deconstructing the 'Blind God' archetype."],
+          detailedInfo: {
+            0: {
+              title: "Blind God Deconstruction",
+              context: "The archetype of the Demiurge is an ancient warning against absolute material power without spiritual connection.",
+              techniques: [
+                "Creative exercises that bypass the 'logical' ego.",
+                "Exploring the limits of material control."
+              ],
+              mindsets: [
+                "Connecting to the Pleroma above the Demiurge.",
+                "Recognizing the 'I am the only god' thought as egoic trap."
+              ]
+            }
+          }
         }
       ]
     },
@@ -158,17 +227,45 @@ export const MIND_MAP_DATA: NodeData = {
       color: '#3B82F6',
       description: 'Bio-energetic practices for neurological sovereignty and health.',
       content: [
-        "Mastery of the Vagus nerve for emotional regulation.",
-        "Sound in Body: Using resonance to shield against external frequencies.",
-        "The Microcosmic Orbit as a biological energy loop."
+        "Mastery of the Vagus nerve.",
+        "Sound in Body resonance.",
+        "The Microcosmic Orbit."
       ],
       detailedInfo: {
         0: {
           title: "Vagus Nerve Mastery",
-          explanation: "The Vagus nerve is the physiological anchor for the SeTs Ryu practice. By strengthening its tone, we can maintain the 'Sound in Body' state even under external psychological pressure.",
-          exercises: [
-            "Resonant Chanting: Low tones to stimulate the thoracic cavity.",
-            "Breath Control: 4-7-8 timing to reset the nervous system."
+          context: "The Vagus nerve is the physiological anchor for Gnosis. A strong vagal tone allows for deep calm in the face of Matrix stressors.",
+          techniques: [
+            "Diaphragmatic breathing with extended exhales.",
+            "Cold exposure to stimulate the vagus highway."
+          ],
+          mindsets: [
+            "Biological mastery leads to spiritual sovereignty.",
+            "Using the body as a stabilizer for the mind."
+          ]
+        },
+        1: {
+          title: "Sound in Body",
+          context: "Internal resonance creates a frequency shield. When the body hums with Chi, external scripts cannot easily penetrate the psyche.",
+          techniques: [
+            "Vocal toning targeting the three 'Dantians'.",
+            "Mantra vibration felt in the bones."
+          ],
+          mindsets: [
+            "The practitioner as a resonant instrument.",
+            "Maintaining a high-frequency baseline."
+          ]
+        },
+        2: {
+          title: "The Microcosmic Orbit",
+          context: "The circulation of Chi through the Governor and Conception vessels creates a self-sustaining loop of energy.",
+          techniques: [
+            "Visualizing light moving up the spine and down the front.",
+            "Coordinating energy flow with the breath."
+          ],
+          mindsets: [
+            "Infinite energy internal to the self.",
+            "Balance between the ascending and descending forces."
           ]
         }
       },
@@ -179,7 +276,21 @@ export const MIND_MAP_DATA: NodeData = {
           type: 'moon',
           color: '#60A5FA',
           description: 'The fuel for bio-energetic circulation and focus.',
-          content: ["Pranic breathing techniques."]
+          content: ["Pranic breathing techniques."],
+          detailedInfo: {
+            0: {
+              title: "Pranic Breathing",
+              context: "Prana is the subtle energy carried in the breath. It is the fuel for the Spark's work within the Avatar.",
+              techniques: [
+                "Box breathing (4-4-4-4) for focus.",
+                "Skull-shining breath for clarity."
+              ],
+              mindsets: [
+                "Breath as the bridge to the Absolute.",
+                "Vitality as a conscious choice."
+              ]
+            }
+          }
         },
         {
           id: 'vagus',
@@ -187,7 +298,21 @@ export const MIND_MAP_DATA: NodeData = {
           type: 'moon',
           color: '#93C5FD',
           description: 'The highway of the parasympathetic nervous system.',
-          content: ["Toning the nerve through cold exposure and sound."]
+          content: ["Toning the nerve through sound."],
+          detailedInfo: {
+            0: {
+              title: "Vagal Toning",
+              context: "The Vagus nerve can be trained like a muscle to return the body to a state of peace faster.",
+              techniques: [
+                "Humming 'Hee' while focusing on the throat.",
+                "Softening the gaze to activate the parasympathetic state."
+              ],
+              mindsets: [
+                "Control over the avatar's hardware.",
+                "Sovereignty over the flight-or-fight reflex."
+              ]
+            }
+          }
         }
       ]
     },
@@ -198,10 +323,48 @@ export const MIND_MAP_DATA: NodeData = {
       color: '#A855F7',
       description: 'Scientific study of behavioral patterns and neuroplasticity.',
       content: [
-        "Neuroplasticity: Rewiring the avatar for Gnostic intent.",
-        "HADD: The Hypersensitive Agency Detection Device.",
-        "Evolutionary psychology and its role in the simulation."
+        "Neuroplasticity for Gnostic intent.",
+        "HADD: Agency detection.",
+        "Evolutionary psychology."
       ],
+      detailedInfo: {
+        0: {
+          title: "Neuroplasticity & Intent",
+          context: "Neuroplasticity is the brain's physical ability to rewire itself. Intent is the signal that directs this rewiring.",
+          techniques: [
+            "Focused visualization of new behavioral patterns.",
+            "Repetition of Gnostic affirmations to strengthen neural pathways."
+          ],
+          mindsets: [
+            "The brain as malleable clay.",
+            "Confidence in the power of directed thought."
+          ]
+        },
+        1: {
+          title: "HADD & Agency Bias",
+          context: "Hypersensitive Agency Detection Device (HADD) is a survival bias that makes us see intent in random events.",
+          techniques: [
+            "Objective logic checks for 'paranormal' occurrences.",
+            "Tracing the evolutionary root of fear-based patterns."
+          ],
+          mindsets: [
+            "Skepticism as a spiritual virtue.",
+            "Clarity over superstitious fear."
+          ]
+        },
+        2: {
+          title: "Evolutionary Psych",
+          context: "Understanding the survival scripts of our ancestors helps us recognize the 'Hardware' of the Matrix.",
+          techniques: [
+            "Analyzing social status drives.",
+            "Identifying the 'survival' root of anxiety."
+          ],
+          mindsets: [
+            "Compassion for the animal body's history.",
+            "Transcending ancestral limitations."
+          ]
+        }
+      },
       subNodes: [
         {
           id: 'neuroplasticity',
@@ -209,7 +372,21 @@ export const MIND_MAP_DATA: NodeData = {
           type: 'moon',
           color: '#C084FC',
           description: 'The biological mechanism of change and growth.',
-          content: ["Habit loop deconstruction."]
+          content: ["Habit loop deconstruction."],
+          detailedInfo: {
+            0: {
+              title: "Habit Loop Deconstruction",
+              context: "Habits are formed by the Cue-Routine-Reward cycle. They are the automation of the Avatar.",
+              techniques: [
+                "Journaling cues to identify triggers.",
+                "Consciously choosing a new routine for a known reward."
+              ],
+              mindsets: [
+                "Patience with biological rewiring.",
+                "Persistence in establishing Gnostic habits."
+              ]
+            }
+          }
         },
         {
           id: 'hadd',
@@ -217,7 +394,21 @@ export const MIND_MAP_DATA: NodeData = {
           type: 'moon',
           color: '#D8B4FE',
           description: 'The cognitive bias that creates false gods and demons.',
-          content: ["Identifying agency in random events."]
+          content: ["Identifying agency in random events."],
+          detailedInfo: {
+            0: {
+              title: "Identifying Agency",
+              context: "Recognizing when our brains are tricking us into seeing ghosts or conspiracies.",
+              techniques: [
+                "Mindfulness during patterns of paranoia.",
+                "Seeking naturalistic explanations first."
+              ],
+              mindsets: [
+                "Intellectual integrity.",
+                "Mental hygiene in the information age."
+              ]
+            }
+          }
         }
       ]
     }

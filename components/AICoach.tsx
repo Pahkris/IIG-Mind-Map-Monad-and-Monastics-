@@ -17,9 +17,37 @@ const AICoach: React.FC<AICoachProps> = ({ progress }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Check for latest quiz result to offer feedback immediately
+  useEffect(() => {
+    if (progress.lastQuizResult) {
+      const { nodeId, score } = progress.lastQuizResult;
+      const feedbackPrompt = `I just completed the quiz for ${nodeId} and scored ${score}%. Give me some personalized advice.`;
+      
+      // Prevent duplicate messages if result hasn't changed
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg && lastMsg.role === 'coach' && lastMsg.text.includes(`${score}%`)) return;
+
+      handleAutoQuery(feedbackPrompt);
+    }
+  }, [progress.lastQuizResult]);
+
   useEffect(() => {
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
   }, [messages]);
+
+  const handleAutoQuery = async (query: string) => {
+    setIsLoading(true);
+    const context = {
+      visitedCount: progress.visitedNodes.length,
+      topScores: progress.quizScores,
+      lastQuiz: progress.lastQuizResult,
+      lastActive: new Date().toISOString()
+    };
+    const response = await getAIResponse(query, context);
+    setMessages(prev => [...prev, { role: 'coach', text: response }]);
+    setIsLoading(false);
+    if (isSpeaking) await speakResponse(response);
+  };
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -32,6 +60,7 @@ const AICoach: React.FC<AICoachProps> = ({ progress }) => {
     const context = {
       visitedCount: progress.visitedNodes.length,
       topScores: progress.quizScores,
+      lastQuiz: progress.lastQuizResult,
       lastActive: new Date().toISOString()
     };
 
@@ -69,7 +98,7 @@ const AICoach: React.FC<AICoachProps> = ({ progress }) => {
       >
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed ${m.role === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white/5 border border-white/10 text-gray-200 rounded-bl-none'}`}>
+            <div className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed ${m.role === 'user' ? 'bg-blue-600 text-white rounded-br-none shadow-md' : 'bg-white/5 border border-white/10 text-gray-200 rounded-bl-none'}`}>
               {m.text}
             </div>
           </div>

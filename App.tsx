@@ -38,19 +38,28 @@ const App: React.FC = () => {
 
   const handleNodeClick = useCallback((node: NodeData) => {
     setIsWormhole(true);
-    // Sudden burst of warp speed for the "whoosh"
     setWarpFactor(prev => Math.min(10, prev + 5));
     
     setTimeout(() => {
       setSelectedNode(node);
       setIsWormhole(false);
-      // Reset warp factor gradually after arrival
       setWarpFactor(prev => Math.max(1, prev - 5));
       setProgress(prev => ({
         ...prev,
         visitedNodes: Array.from(new Set([...prev.visitedNodes, node.id]))
       }));
     }, 800);
+  }, []);
+
+  const handleQuizComplete = useCallback((nodeId: string, score: number) => {
+    setProgress(prev => ({
+      ...prev,
+      quizScores: { ...prev.quizScores, [nodeId]: score },
+      lastQuizResult: { nodeId, score }
+    }));
+    
+    // Auto-open AI Coach if score is low or high to provide feedback
+    // but the user might prefer choosing to go there.
   }, []);
 
   const toggleFullscreen = () => {
@@ -62,14 +71,13 @@ const App: React.FC = () => {
     setIsFullscreen(!isFullscreen);
   };
 
-  // Generate randomized shooting stars with unique trajectories
   const backgroundStars = useMemo(() => {
     return Array.from({ length: 100 }).map((_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
       size: Math.random() * 1.5 + 0.5,
-      angle: Math.random() * Math.PI * 2, // 360 degree random direction
+      angle: Math.random() * Math.PI * 2,
       speedBase: Math.random() * 0.4 + 0.05,
       opacity: Math.random() * 0.4 + 0.2,
       delay: Math.random() * 10
@@ -82,10 +90,8 @@ const App: React.FC = () => {
       className="relative h-screen w-screen overflow-hidden bg-black text-white font-inter"
       style={{ '--warp-intensity': warpFactor } as any}
     >
-      {/* Dynamic Starfield Background - Moving in completely random directions */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         {backgroundStars.map(star => {
-          // Calculate movement vector based on random angle
           const distance = 200 + (warpFactor * 100);
           const moveX = Math.cos(star.angle) * distance;
           const moveY = Math.sin(star.angle) * distance;
@@ -117,14 +123,12 @@ const App: React.FC = () => {
             </div>
           );
         })}
-        {/* Deep space atmosphere */}
         <div 
           className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.15)_0%,black_100%)]"
           style={{ opacity: warpFactor > 5 ? 0.5 : 0.2 }}
         ></div>
       </div>
 
-      {/* Wormhole Overlay */}
       {isWormhole && (
         <div className="absolute inset-0 z-[100] flex items-center justify-center pointer-events-none overflow-hidden bg-black/20 backdrop-blur-sm">
           <div className="portal-flash-overlay"></div>
@@ -135,7 +139,6 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Header Branding */}
       <header className="absolute top-0 left-0 w-full p-6 z-40 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.3)]">
@@ -162,7 +165,6 @@ const App: React.FC = () => {
         </nav>
       </header>
 
-      {/* Main content Area */}
       <main className="h-full w-full relative">
         {activeTab === 'map' && (
           <SolarSystem 
@@ -178,18 +180,16 @@ const App: React.FC = () => {
         {activeTab === 'progress' && <ProgressTracker progress={progress} />}
       </main>
 
-      {/* Detail Panel */}
       {selectedNode && selectedNode.id !== 'ai-coach' && (
         <InfoCard 
           node={selectedNode} 
           onClose={() => setSelectedNode(null)} 
           progress={progress}
-          onQuizComplete={(score) => setProgress(p => ({...p, quizScores: {...p.quizScores, [selectedNode.id]: score}}))}
+          onQuizComplete={(score) => handleQuizComplete(selectedNode.id, score)}
           onNavigate={handleNodeClick}
         />
       )}
 
-      {/* AI Coach Modal */}
       {selectedNode?.id === 'ai-coach' && (
         <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center">
           <div className="relative w-full max-w-4xl h-[80vh]">
@@ -199,7 +199,6 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Persistent Mobile Navigation */}
       <div className="md:hidden absolute bottom-0 left-0 w-full flex justify-around bg-black/90 p-4 border-t border-blue-900 z-40">
         <button onClick={() => setActiveTab('map')} className="text-[10px] uppercase flex flex-col items-center gap-1">
           <ICONS.Brain /> Map

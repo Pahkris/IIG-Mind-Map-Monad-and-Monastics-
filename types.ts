@@ -1,8 +1,9 @@
 
 export interface DetailedInfo {
   title: string;
-  explanation: string;
-  exercises: string[];
+  context: string;        // Theology and Theory
+  techniques: string[];   // Practical Techniques
+  mindsets: string[];     // Mind SeTs and Skills
 }
 
 export interface NodeData {
@@ -23,6 +24,7 @@ export interface UserProgress {
   quizScores: Record<string, number>;
   flashcardProgress: Record<string, boolean>;
   joinDate: string;
+  lastQuizResult?: { nodeId: string; score: number }; // Track for AI Coach feedback
 }
 
 export interface QuizQuestion {

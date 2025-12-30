@@ -21,38 +21,41 @@ const ResourcesLibrary: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full w-full max-w-5xl mx-auto p-8 pt-24 overflow-y-auto">
-      {/* Internal Content Viewer Modal */}
+      {/* Internal Content Viewer Modal - 100% Opaque bg-void */}
       {selectedItem && (
-        <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-300">
-          <div className="bg-void/80 border border-blue-900/40 rounded-3xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl">
-            <div className="p-8 border-b border-white/5 flex justify-between items-center">
+        <div className="fixed inset-0 z-[200] bg-black/98 backdrop-blur-2xl flex items-center justify-center p-6 animate-in fade-in duration-300">
+          <div className="bg-[#050505] border border-blue-900/40 rounded-[2.5rem] w-full max-w-2xl max-h-[85vh] flex flex-col shadow-[0_30px_100px_rgba(0,0,0,1)] overflow-hidden">
+            <div className="p-8 border-b border-white/5 flex justify-between items-center bg-black/40">
               <div>
                 <span className="text-[10px] uppercase font-black text-orange-500 tracking-[0.3em] mb-2 block">{selectedItem.type} Summary</span>
                 <h3 className="text-2xl font-mystic text-white">{selectedItem.title}</h3>
               </div>
-              <button onClick={() => setSelectedItem(null)} className="p-3 text-gray-500 hover:text-white bg-white/5 rounded-full transition">
+              <button 
+                onClick={() => setSelectedItem(null)} 
+                className="p-3 text-gray-500 hover:text-white bg-white/5 rounded-full transition-all border border-white/5"
+              >
                 <ICONS.Close />
               </button>
             </div>
-            <div className="p-10 overflow-y-auto flex-1 custom-scrollbar">
+            <div className="p-10 overflow-y-auto flex-1 custom-scrollbar bg-[#050505]">
               <div className="prose prose-invert max-w-none">
-                <p className="text-gray-300 text-lg leading-relaxed font-light whitespace-pre-wrap">
+                <p className="text-gray-200 text-lg leading-relaxed font-light whitespace-pre-wrap">
                   {selectedItem.internalContent}
                 </p>
               </div>
-              <div className="mt-12 p-8 bg-blue-900/10 rounded-2xl border border-blue-800/20 text-center">
-                <p className="text-[11px] text-blue-400 font-bold uppercase tracking-widest mb-6">Mastery Resource Source</p>
+              <div className="mt-12 p-10 bg-blue-900/10 rounded-3xl border border-blue-800/20 text-center">
+                <p className="text-[11px] text-blue-400 font-bold uppercase tracking-[0.2em] mb-8">Mastery Resource Gateway</p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <button 
                     onClick={() => handleOpenSource(selectedItem.link)}
-                    className="px-8 py-4 bg-orange-500 hover:bg-orange-400 rounded-xl text-xs font-bold uppercase tracking-widest transition shadow-lg shadow-orange-900/20 text-black"
+                    className="px-10 py-5 bg-orange-500 hover:bg-orange-400 rounded-2xl text-[10px] font-black uppercase tracking-widest transition shadow-lg shadow-orange-900/30 text-black transform hover:-translate-y-1"
                   >
                     Open Full {selectedItem.type}
                   </button>
                   <a 
                     href="https://www.mindsets.eu/book-online" 
                     target="_blank" 
-                    className="px-8 py-4 bg-blue-600 hover:bg-blue-500 rounded-xl text-xs font-bold uppercase tracking-widest transition shadow-lg shadow-blue-900/20"
+                    className="px-10 py-5 bg-blue-600 hover:bg-blue-500 rounded-2xl text-[10px] font-black uppercase tracking-widest transition shadow-lg shadow-blue-900/30 text-white transform hover:-translate-y-1"
                   >
                     Join Training
                   </a>
