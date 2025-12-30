@@ -16,7 +16,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
   const [isPaused, setIsPaused] = useState(false);
   const [dragRotation, setDragRotation] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
-  const [showNavPop, setShowNavPop] = useState(true);
+  const [showNavPop, setShowNavPop] = useState(false); // 2. Navigation Guide collapsed by default
   const lastMousePos = useRef({ x: 0, y: 0 });
 
   const SYSTEM_CENTER_Z = 500;
@@ -41,7 +41,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
     const deltaX = e.clientX - lastMousePos.current.x;
     const deltaY = e.clientY - lastMousePos.current.y;
     setDragRotation(prev => ({
-      x: prev.x + deltaY * 0.2,
+      x: Math.max(-80, Math.min(80, prev.x + deltaY * 0.2)),
       y: prev.y + deltaX * 0.2
     }));
     lastMousePos.current = { x: e.clientX, y: e.clientY };
@@ -60,43 +60,41 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
 
   const resetView = () => setDragRotation({ x: 0, y: 0 });
 
-  // 3D Sphere Renderer with billboards and hover responsiveness
+  // 1. Enhanced 3D Sphere Renderer with Realistic Shading
   const ThreeDSphere = ({ size, color, label, isMoon = false, isMonad = false }: { size: number, color: string, label: string, isMoon?: boolean, isMonad?: boolean }) => {
     const shadowColor = '#000000';
     const textureUrl = 'https://www.transparenttextures.com/patterns/carbon-fibre.png';
+    
+    // Complex radial gradient for realistic 3D volume
     const bg = isMonad 
-      ? `radial-gradient(circle at 30% 30%, #ffffff, #888888)` 
-      : `radial-gradient(circle at 30% 30%, ${color}, ${shadowColor})`;
+      ? `radial-gradient(circle at 30% 30%, #ffffff 0%, #d1d1d1 40%, #888888 70%, #444444 100%)` 
+      : `radial-gradient(circle at 35% 35%, ${color} 0%, ${color}CC 30%, ${shadowColor} 90%)`;
 
     return (
       <div className="relative flex items-center justify-center transition-all duration-300 group-hover/obj:scale-110" style={{ width: size, height: size, transformStyle: 'preserve-3d' }}>
-        {/* Volumetric Layer 1 (Frontal) */}
-        <div className="absolute inset-0 rounded-full flex items-center justify-center overflow-hidden ring-1 ring-white/10 group-hover/obj:ring-white/40 transition-all shadow-[0_0_20px_rgba(0,0,0,0.5)] group-hover/obj:shadow-[0_0_40px_rgba(255,255,255,0.2)]" 
+        {/* Core Volumetric layers to simulate a solid sphere */}
+        <div className="absolute inset-0 rounded-full overflow-hidden ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.8)]" 
              style={{ background: bg, transform: 'translateZ(0px)' }}>
-          <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-center bg-cover" style={{ backgroundImage: `url(${textureUrl})` }}></div>
+          <div className="absolute inset-0 opacity-20 mix-blend-overlay bg-center bg-cover" style={{ backgroundImage: `url(${textureUrl})` }}></div>
         </div>
         
-        {/* Volumetric Cross Planes (Disabled for Monad) */}
-        {!isMonad && (
-          <>
-            <div className="absolute inset-0 rounded-full flex items-center justify-center overflow-hidden ring-1 ring-white/10" 
-                 style={{ background: bg, transform: 'rotateY(90deg)', filter: 'brightness(0.7)' }}>
-              <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-center bg-cover" style={{ backgroundImage: `url(${textureUrl})` }}></div>
-            </div>
-            <div className="absolute inset-0 rounded-full flex items-center justify-center overflow-hidden ring-1 ring-white/10" 
-                 style={{ background: bg, transform: 'rotateX(90deg)', filter: 'brightness(0.5)' }}>
-              <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-center bg-cover" style={{ backgroundImage: `url(${textureUrl})` }}></div>
-            </div>
-          </>
-        )}
+        {/* Cross Planes for volumetric depth when tilting */}
+        <div className="absolute inset-0 rounded-full" 
+             style={{ background: bg, transform: 'rotateY(90deg)', filter: 'brightness(0.6)' }}></div>
+        <div className="absolute inset-0 rounded-full" 
+             style={{ background: bg, transform: 'rotateX(90deg)', filter: 'brightness(0.4)' }}></div>
 
-        {/* Highlight Glow Effect on Hover */}
-        <div className="absolute inset-0 rounded-full opacity-0 group-hover/obj:opacity-100 transition-opacity duration-300 pointer-events-none" 
-             style={{ background: `radial-gradient(circle, ${color}40 0%, transparent 70%)`, transform: 'translateZ(1px)' }}></div>
+        {/* Realistic Specular Highlight (Atmosphere/Reflection) */}
+        <div className="absolute inset-0 rounded-full pointer-events-none opacity-60" 
+             style={{ background: 'radial-gradient(circle at 30% 30%, white 0%, transparent 40%)', transform: 'translateZ(2px)' }}></div>
         
-        {/* Billboarded Label */}
+        {/* Rim Lighting Glow */}
+        <div className="absolute inset-0 rounded-full ring-2 ring-white/5 opacity-40 group-hover/obj:opacity-100 transition-opacity" 
+             style={{ transform: 'translateZ(-1px)', boxShadow: `0 0 15px ${color}40` }}></div>
+        
+        {/* 3. Billboarded Label (Readable at all angles) */}
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none" 
-             style={{ transform: `rotateX(${-dragRotation.x}deg) rotateY(${-dragRotation.y}deg)` }}>
+             style={{ transform: `rotateX(${-dragRotation.x}deg) rotateY(${-dragRotation.y - (isMonad ? 0 : 0)}deg)` }}>
           <span className={`uppercase font-black tracking-widest text-center px-2 drop-shadow-[0_2px_10px_rgba(0,0,0,1)] ${isMoon ? 'text-[8px] text-white/80 group-hover/obj:text-white group-hover/obj:scale-110' : isMonad ? 'text-2xl text-black' : 'text-[11px] text-white group-hover/obj:text-yellow-400 group-hover/obj:scale-105'} transition-all`}>
             {label}
           </span>
@@ -111,25 +109,26 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
       style={{ perspective: '1500px', '--flow-speed': flowSpeed } as any}
       onMouseDown={onMouseDown}
     >
-      {/* 2. Navigation Guide - Top Left Corner */}
+      {/* 2. Navigation Guide - Top Left Corner (Collapsed by default) */}
       <div className="absolute top-24 left-10 z-[1000] flex flex-col items-start select-none">
         <button 
           onClick={() => setShowNavPop(!showNavPop)}
-          className="text-[11px] text-blue-400 border-b border-blue-900/50 hover:text-white hover:border-blue-400 transition-all uppercase tracking-widest font-black"
+          className="text-[11px] text-blue-400 border-b border-blue-900/50 hover:text-white hover:border-blue-400 transition-all uppercase tracking-widest font-black flex items-center gap-2"
         >
-          Navigation Guide {showNavPop ? '(Collapse)' : '(Expand)'}
+          {showNavPop ? <ICONS.Close /> : <ICONS.ChevronRight />}
+          Navigation Guide
         </button>
         {showNavPop && (
           <div className="mt-4 w-80 bg-void/98 border border-blue-900/40 p-8 rounded-3xl backdrop-blur-xl shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
             <h5 className="text-[10px] font-black text-yellow-500 uppercase mb-4 tracking-[0.3em] border-b border-white/5 pb-2">System Mastery Guide</h5>
             <ul className="text-[10px] space-y-3 text-gray-400 leading-relaxed font-medium">
-              <li><span className="text-blue-500 font-black mr-2">DRAG:</span> Tilt the plane using the mouse.</li>
-              <li><span className="text-blue-500 font-black mr-2">3D SPHERES:</span> Solid volumetric objects react to lighting and tilt.</li>
-              <li><span className="text-blue-500 font-black mr-2">TRACKER:</span> View current orientation and reset to center via HUD.</li>
-              <li><span className="text-blue-500 font-black mr-2">HOVER:</span> Hover over any planet or moon to reveal detailed summary data.</li>
-              <li><span className="text-blue-500 font-black mr-2">WARP:</span> Intensifies starfield randomized trajectories and speeds.</li>
+              <li><span className="text-blue-500 font-black mr-2">DRAG:</span> Tilt the plane using the mouse to see 3D objects from any side.</li>
+              <li><span className="text-blue-500 font-black mr-2">3D SPHERES:</span> Objects feature realistic shading, specular highlights, and textures.</li>
+              <li><span className="text-blue-500 font-black mr-2">TRACKER:</span> View current orientation and reset to center via the Bottom-Right HUD.</li>
+              <li><span className="text-blue-500 font-black mr-2">HOVER:</span> Detailed data summaries appear on hover for all major bodies.</li>
+              <li><span className="text-blue-500 font-black mr-2">WARP:</span> Intensifies starfield velocity and rotation orbital mechanics.</li>
             </ul>
-            <button onClick={() => setShowNavPop(false)} className="mt-6 w-full py-2 bg-white/5 rounded-xl text-[9px] text-gray-400 hover:text-white uppercase tracking-widest border border-white/10 font-bold transition-all">Dismiss HUD</button>
+            <button onClick={() => setShowNavPop(false)} className="mt-6 w-full py-2 bg-white/5 rounded-xl text-[9px] text-gray-400 hover:text-white uppercase tracking-widest border border-white/10 font-bold transition-all">Minimize HUD</button>
           </div>
         )}
       </div>
@@ -299,7 +298,6 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
         <div className="w-24 h-24 bg-gradient-radial from-yellow-400 to-orange-700 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(245,166,35,0.4)] transition-transform duration-500 group-hover:scale-110 border-2 border-white/10">
           <span className="text-4xl filter drop-shadow-lg">👁️</span>
         </div>
-        {/* Restored AI Coach Pop-up Label */}
         <div 
           className="absolute -bottom-12 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-110 pointer-events-none"
           style={{ transform: `translateX(-50%) rotateX(${-dragRotation.x}deg) rotateY(${-dragRotation.y}deg)` }}
