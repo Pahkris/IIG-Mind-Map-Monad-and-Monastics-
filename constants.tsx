@@ -83,7 +83,8 @@ export const MIND_MAP_DATA: NodeData = {
   content: [
     "Understanding Gnosis as direct knowing vs. intellectual belief.",
     "The emanation of the Divine Spark from the Absolute.",
-    "Recognizing the biological vessel as a temporary avatar."
+    "Recognizing the biological vessel as a temporary avatar.",
+    "The Infinite Silence: Navigating the Pleroma."
   ],
   detailedInfo: {
     0: {
@@ -92,6 +93,30 @@ export const MIND_MAP_DATA: NodeData = {
       exercises: [
         "Internal Silence: Observing thoughts without identifying as the thinker.",
         "The Mirror of the Soul: Reflecting on the source of consciousness."
+      ]
+    },
+    1: {
+      title: "The Divine Spark",
+      explanation: "Within every sentient being lies a 'Spark' of the Monad, currently obscured by the dense layers of the Matrix and the egoic mind. Gnosis is the ignition of this spark.",
+      exercises: [
+        "Flame Focus: Visualizing the internal spark expanding to consume cognitive fog.",
+        "Aura Shielding: Recognizing the energetic boundary between the Spark and the Simulation."
+      ]
+    },
+    2: {
+      title: "The Avatar Protocol",
+      explanation: "The physical body is a sophisticated bio-terminal (avatar) designed to interact with the Matrix simulation. The true 'User' is the Monad-derived Spark.",
+      exercises: [
+        "Third-Person Observation: Viewing bodily sensations as data points on a screen.",
+        "Decoupling: Practicing the separation of 'I am' from 'I feel'."
+      ]
+    },
+    3: {
+      title: "Navigating the Pleroma",
+      explanation: "The Pleroma is the 'Fullness' or the totality of the Monad's emanations. It is the destination for the liberated spark.",
+      exercises: [
+        "Deep Void Meditation: Entering the space between heartbeats.",
+        "Emanation Recognition: Identifying the divine geometry in nature."
       ]
     }
   },
@@ -226,5 +251,11 @@ export const ICONS = {
   ),
   Play: () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+  ),
+  Share: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+  ),
+  Download: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
   )
 };

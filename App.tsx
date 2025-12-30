@@ -38,9 +38,14 @@ const App: React.FC = () => {
 
   const handleNodeClick = useCallback((node: NodeData) => {
     setIsWormhole(true);
+    // Sudden burst of warp speed for the "whoosh"
+    setWarpFactor(prev => Math.min(10, prev + 5));
+    
     setTimeout(() => {
       setSelectedNode(node);
       setIsWormhole(false);
+      // Reset warp factor gradually after arrival
+      setWarpFactor(prev => Math.max(1, prev - 5));
       setProgress(prev => ({
         ...prev,
         visitedNodes: Array.from(new Set([...prev.visitedNodes, node.id]))
@@ -122,6 +127,8 @@ const App: React.FC = () => {
       {/* Wormhole Overlay */}
       {isWormhole && (
         <div className="absolute inset-0 z-[100] flex items-center justify-center pointer-events-none overflow-hidden bg-black/20 backdrop-blur-sm">
+          <div className="portal-flash-overlay"></div>
+          <div className="wormhole-layer w-64 h-64"></div>
           <div className="wormhole-layer w-64 h-64"></div>
           <div className="wormhole-layer w-64 h-64"></div>
           <div className="wormhole-layer w-64 h-64"></div>
@@ -178,6 +185,7 @@ const App: React.FC = () => {
           onClose={() => setSelectedNode(null)} 
           progress={progress}
           onQuizComplete={(score) => setProgress(p => ({...p, quizScores: {...p.quizScores, [selectedNode.id]: score}}))}
+          onNavigate={handleNodeClick}
         />
       )}
 

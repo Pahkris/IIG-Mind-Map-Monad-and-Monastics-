@@ -21,7 +21,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
 
   const SYSTEM_CENTER_Z = 500;
   const rotationIncrement = useMemo(() => 0.15 * warpFactor, [warpFactor]);
-  const flowSpeed = useMemo(() => `${1.5 / warpFactor}s`, [warpFactor]);
+  const flowSpeed = useMemo(() => `${1.2 / Math.max(1, warpFactor)}s`, [warpFactor]);
 
   useEffect(() => {
     if (isPaused) return;
@@ -198,8 +198,8 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
           const y = Math.sin(angle) * 100;
           const z = Math.sin(angle) * radius;
           const depthFactor = (z + radius) / (radius * 2);
-          const strokeWidth = 1 + depthFactor * 2;
-          const opacity = 0.2 + depthFactor * 0.5;
+          const strokeWidth = 2 + depthFactor * 3;
+          const opacity = 0.4 + depthFactor * 0.4;
 
           return (
             <div 
@@ -213,7 +213,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
             >
               <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
                 <line x1="50%" y1="50%" x2={`${50 + (x / 14)}%`} y2={`${50 + (y / 14)}%`} stroke={planet.color} strokeWidth={strokeWidth} strokeOpacity={opacity * 0.4} />
-                <line className="link-energy" x1="50%" y1="50%" x2={`${50 + (x / 14)}%`} y2={`${50 + (y / 14)}%`} stroke={planet.color} strokeWidth={strokeWidth * 1.5} strokeDasharray="15 30" strokeLinecap="round" strokeOpacity={opacity} />
+                <line className="link-energy" x1="50%" y1="50%" x2={`${50 + (x / 14)}%`} y2={`${50 + (y / 14)}%`} stroke={planet.color} strokeWidth={strokeWidth * 1.5} strokeDasharray="20 40" strokeLinecap="round" strokeOpacity={opacity * 0.8} />
               </svg>
             </div>
           );

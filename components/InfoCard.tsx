@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { NodeData, UserProgress, DetailedInfo } from '../types';
-import { COLORS, ICONS } from '../constants';
+import { COLORS, ICONS, MIND_MAP_DATA } from '../constants';
 import QuizFlashcards from './QuizFlashcards';
 
 interface InfoCardProps {
@@ -9,11 +9,42 @@ interface InfoCardProps {
   onClose: () => void;
   progress: UserProgress;
   onQuizComplete: (score: number) => void;
+  onNavigate: (node: NodeData) => void;
 }
 
-const InfoCard: React.FC<InfoCardProps> = ({ node, onClose, progress, onQuizComplete }) => {
+const InfoCard: React.FC<InfoCardProps> = ({ node, onClose, progress, onQuizComplete, onNavigate }) => {
   const [view, setView] = useState<'info' | 'quiz' | 'flashcards'>('info');
   const [activeDetail, setActiveDetail] = useState<DetailedInfo | null>(null);
+
+  // Helper to find related nodes in the static data for navigation
+  const findNodeById = (id: string, searchNode: NodeData = MIND_MAP_DATA): NodeData | null => {
+    if (searchNode.id === id) return searchNode;
+    if (searchNode.subNodes) {
+      for (const sub of searchNode.subNodes) {
+        const found = findNodeById(id, sub);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  const relatedLinks: Record<string, string[]> = {
+    'monad': ['matrix', 'chi-kung'],
+    'matrix': ['monad', 'cognition', 'archons'],
+    'chi-kung': ['monad', 'vagus'],
+    'cognition': ['matrix', 'neuroplasticity'],
+    'vagus': ['chi-kung', 'breath'],
+    'archons': ['matrix', 'demiurge'],
+    'demiurge': ['matrix', 'archons'],
+    'neuroplasticity': ['cognition', 'chi-kung']
+  };
+
+  const handleNavigateToRelated = (id: string) => {
+    const target = findNodeById(id);
+    if (target) {
+      onNavigate(target);
+    }
+  };
 
   return (
     <div className="absolute top-0 right-0 h-full w-full md:w-[500px] bg-void/95 border-l border-blue-900/50 z-[110] overflow-y-auto p-8 shadow-[-20px_0_60px_rgba(0,0,0,0.9)] backdrop-blur-xl transition-all duration-500">
@@ -135,6 +166,28 @@ const InfoCard: React.FC<InfoCardProps> = ({ node, onClose, progress, onQuizComp
                 );
               })}
             </ul>
+
+            {/* Related Gnosis Section */}
+            {relatedLinks[node.id] && (
+              <div className="mt-10">
+                <div className="mb-4 flex items-center justify-between">
+                  <span className="text-[10px] text-orange-500 uppercase tracking-widest font-bold">Related Gnosis:</span>
+                  <div className="h-px flex-1 bg-white/5 ml-4"></div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {relatedLinks[node.id].map(relId => (
+                    <button 
+                      key={relId}
+                      onClick={() => handleNavigateToRelated(relId)}
+                      className="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-[10px] uppercase tracking-widest hover:bg-orange-500/20 hover:border-orange-500/40 transition group flex items-center gap-2"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-orange-500 group-hover:animate-pulse"></span>
+                      {relId.replace('-', ' ')}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="mt-14 p-8 rounded-3xl bg-gradient-to-br from-blue-900/10 via-black to-transparent border border-blue-800/20 shadow-inner">
               <h3 className="text-[11px] font-bold text-blue-400 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
