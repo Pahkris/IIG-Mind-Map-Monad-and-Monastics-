@@ -112,7 +112,7 @@ export const MIND_MAP_DATA: NodeData = {
           id: 'archons',
           label: 'Archons',
           type: 'moon',
-          color: '#F87171',
+          color: '#86EFAC', // Lighter Green to match Matrix
           description: 'Systems of control that feed on low-frequency emotional states.',
           content: ["Detection of external agency scripts."]
         },
@@ -120,7 +120,7 @@ export const MIND_MAP_DATA: NodeData = {
           id: 'demiurge',
           label: 'Demiurge',
           type: 'moon',
-          color: '#FB923C',
+          color: '#BBF7D0', // Lightest Green to match Matrix
           description: 'The personification of the egoic world-building instinct.',
           content: ["Deconstructing the 'Blind God' archetype."]
         }
