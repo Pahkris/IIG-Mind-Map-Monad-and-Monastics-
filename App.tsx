@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { NodeData, UserProgress } from './types';
 import { MIND_MAP_DATA, COLORS, ICONS } from './constants';
 import SolarSystem from './components/SolarSystem';
@@ -14,6 +14,7 @@ const App: React.FC = () => {
   const [isWormhole, setIsWormhole] = useState(false);
   const [activeTab, setActiveTab] = useState<'map' | 'library' | 'compare' | 'progress'>('map');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [warpFactor, setWarpFactor] = useState(1);
   const appRef = useRef<HTMLDivElement>(null);
 
   const [progress, setProgress] = useState<UserProgress>(() => {
@@ -56,17 +57,69 @@ const App: React.FC = () => {
     setIsFullscreen(!isFullscreen);
   };
 
+  // Generate randomized shooting stars with unique trajectories
+  const backgroundStars = useMemo(() => {
+    return Array.from({ length: 100 }).map((_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 1.5 + 0.5,
+      angle: Math.random() * Math.PI * 2, // 360 degree random direction
+      speedBase: Math.random() * 0.4 + 0.05,
+      opacity: Math.random() * 0.4 + 0.2,
+      delay: Math.random() * 10
+    }));
+  }, []);
+
   return (
-    <div ref={appRef} className="relative h-screen w-screen overflow-hidden bg-black text-white font-inter">
-      {/* Background Stars */}
-      <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-white rounded-full blur-[1px]"></div>
-        <div className="absolute top-1/3 left-1/2 w-1.5 h-1.5 bg-blue-200 rounded-full animate-pulse"></div>
-        <div className="absolute top-3/4 left-1/4 w-1 h-1 bg-white rounded-full"></div>
-        <div className="absolute top-2/3 right-1/4 w-1 h-1 bg-blue-100 rounded-full"></div>
+    <div 
+      ref={appRef} 
+      className="relative h-screen w-screen overflow-hidden bg-black text-white font-inter"
+      style={{ '--warp-intensity': warpFactor } as any}
+    >
+      {/* Dynamic Starfield Background - Moving in completely random directions */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        {backgroundStars.map(star => {
+          // Calculate movement vector based on random angle
+          const distance = 200 + (warpFactor * 100);
+          const moveX = Math.cos(star.angle) * distance;
+          const moveY = Math.sin(star.angle) * distance;
+          const duration = (25 / Math.max(0.5, warpFactor));
+
+          return (
+            <div 
+              key={star.id}
+              className="absolute rounded-full bg-white transition-opacity duration-1000"
+              style={{
+                top: `${star.y}%`,
+                left: `${star.x}%`,
+                width: `${star.size}px`,
+                height: `${star.size}px`,
+                opacity: star.opacity,
+                boxShadow: `0 0 ${star.size * 2}px rgba(255,255,255,0.8)`,
+                animation: `star-glide-${star.id} ${duration}s linear infinite`,
+                animationDelay: `-${star.delay}s`
+              }}
+            >
+              <style>{`
+                @keyframes star-glide-${star.id} {
+                  0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+                  20% { opacity: ${star.opacity}; }
+                  80% { opacity: ${star.opacity}; }
+                  100% { transform: translate(${moveX}px, ${moveY}px) scale(${1 + warpFactor * 0.2}); opacity: 0; }
+                }
+              `}</style>
+            </div>
+          );
+        })}
+        {/* Deep space atmosphere */}
+        <div 
+          className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.15)_0%,black_100%)]"
+          style={{ opacity: warpFactor > 5 ? 0.5 : 0.2 }}
+        ></div>
       </div>
 
-      {/* Wormhole Overlay - Multi-layered Tunneling */}
+      {/* Wormhole Overlay */}
       {isWormhole && (
         <div className="absolute inset-0 z-[100] flex items-center justify-center pointer-events-none overflow-hidden bg-black/20 backdrop-blur-sm">
           <div className="wormhole-layer w-64 h-64"></div>
@@ -105,7 +158,13 @@ const App: React.FC = () => {
       {/* Main content Area */}
       <main className="h-full w-full relative">
         {activeTab === 'map' && (
-          <SolarSystem data={MIND_MAP_DATA} onNodeClick={handleNodeClick} visitedNodes={progress.visitedNodes} />
+          <SolarSystem 
+            data={MIND_MAP_DATA} 
+            onNodeClick={handleNodeClick} 
+            visitedNodes={progress.visitedNodes} 
+            warpFactor={warpFactor}
+            setWarpFactor={setWarpFactor}
+          />
         )}
         {activeTab === 'library' && <ResourcesLibrary />}
         {activeTab === 'compare' && <Comparator />}
@@ -122,7 +181,7 @@ const App: React.FC = () => {
         />
       )}
 
-      {/* AI Coach Modal if selected via map */}
+      {/* AI Coach Modal */}
       {selectedNode?.id === 'ai-coach' && (
         <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center">
           <div className="relative w-full max-w-4xl h-[80vh]">
