@@ -57,9 +57,6 @@ const App: React.FC = () => {
       quizScores: { ...prev.quizScores, [nodeId]: score },
       lastQuizResult: { nodeId, score }
     }));
-    
-    // Auto-open AI Coach if score is low or high to provide feedback
-    // but the user might prefer choosing to go there.
   }, []);
 
   const toggleFullscreen = () => {
@@ -72,16 +69,57 @@ const App: React.FC = () => {
   };
 
   const backgroundStars = useMemo(() => {
-    return Array.from({ length: 100 }).map((_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 1.5 + 0.5,
-      angle: Math.random() * Math.PI * 2,
-      speedBase: Math.random() * 0.4 + 0.05,
-      opacity: Math.random() * 0.4 + 0.2,
-      delay: Math.random() * 10
-    }));
+    const stars: any[] = [];
+    
+    // Helper to add fixed constellation groups (Positions tailored for Helsinki's Feb sky)
+    const addConstellation = (startX: number, startY: number, offsets: {x: number, y: number, b?: number}[]) => {
+      offsets.forEach((off, i) => {
+        stars.push({
+          id: `const-${startX}-${startY}-${i}`,
+          x: startX + off.x,
+          y: startY + off.y,
+          size: (off.b || 1) * 2,
+          angle: Math.random() * Math.PI * 2,
+          speedBase: Math.random() * 0.4 + 0.05,
+          opacity: (off.b || 0.8) * 0.9,
+          delay: Math.random() * 10
+        });
+      });
+    };
+
+    // Orion (The Hunter) - Prominent in Southern Feb sky
+    addConstellation(70, 60, [
+      {x: 0, y: 0, b: 1.2}, {x: 6, y: -2, b: 1}, // Shoulders (Betelgeuse, Bellatrix)
+      {x: 2, y: 4, b: 0.8}, {x: 3, y: 4.2, b: 0.8}, {x: 4, y: 4.4, b: 0.8}, // Belt
+      {x: 1, y: 10, b: 1.1}, {x: 7, y: 8, b: 0.9} // Feet (Rigel, Saiph)
+    ]);
+
+    // Ursa Major (Big Dipper) - High in Northern Feb sky
+    addConstellation(15, 20, [
+      {x: 0, y: 0, b: 0.9}, {x: 5, y: -1, b: 0.8}, {x: 8, y: 3, b: 1}, {x: 3, y: 4, b: 0.7}, // Bowl
+      {x: -4, y: -2, b: 0.8}, {x: -8, y: -1, b: 0.7}, {x: -12, y: -4, b: 0.9} // Handle
+    ]);
+
+    // Cassiopeia (The Queen) - "W" shape
+    addConstellation(40, 15, [
+      {x: 0, y: 0, b: 0.9}, {x: 3, y: 4, b: 0.8}, {x: 7, y: 1, b: 1}, {x: 10, y: 5, b: 0.8}, {x: 14, y: 2, b: 0.9}
+    ]);
+
+    // Random noise stars (filling the rest)
+    for (let i = 0; i < 120; i++) {
+      stars.push({
+        id: `noise-${i}`,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 1.8 + 0.4,
+        angle: Math.random() * Math.PI * 2,
+        speedBase: Math.random() * 0.4 + 0.05,
+        opacity: Math.random() * 0.5 + 0.3, // Slightly brightened
+        delay: Math.random() * 10
+      });
+    }
+
+    return stars;
   }, []);
 
   return (
@@ -107,13 +145,13 @@ const App: React.FC = () => {
                 width: `${star.size}px`,
                 height: `${star.size}px`,
                 opacity: star.opacity,
-                boxShadow: `0 0 ${star.size * 2}px rgba(255,255,255,0.8)`,
-                animation: `star-glide-${star.id} ${duration}s linear infinite`,
+                boxShadow: `0 0 ${star.size * 2.5}px rgba(255,255,255,0.9)`,
+                animation: `star-glide-${star.id.replace(/-/g, '')} ${duration}s linear infinite`,
                 animationDelay: `-${star.delay}s`
               }}
             >
               <style>{`
-                @keyframes star-glide-${star.id} {
+                @keyframes star-glide-${star.id.replace(/-/g, '')} {
                   0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
                   20% { opacity: ${star.opacity}; }
                   80% { opacity: ${star.opacity}; }
@@ -124,8 +162,8 @@ const App: React.FC = () => {
           );
         })}
         <div 
-          className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.15)_0%,black_100%)]"
-          style={{ opacity: warpFactor > 5 ? 0.5 : 0.2 }}
+          className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.18)_0%,black_100%)]"
+          style={{ opacity: warpFactor > 5 ? 0.6 : 0.3 }}
         ></div>
       </div>
 

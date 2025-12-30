@@ -283,7 +283,7 @@ const Comparator: React.FC = () => {
 
       {/* Primary Overview Table (Hardcoded DB or fallback) */}
       {!aiResult && currentDisplayA && currentDisplayB && (
-        <div className="relative bg-black/40 rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl backdrop-blur-sm mb-12">
+        <div className="relative bg-black/40 rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl backdrop-blur-sm mb-12 animate-in fade-in duration-500">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-white/5">
@@ -293,8 +293,12 @@ const Comparator: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {metrics.map(attr => (
-                <tr key={attr} className="group transition-colors">
+              {metrics.map((attr, idx) => (
+                <tr 
+                  key={attr} 
+                  className="group transition-colors animate-in fade-in slide-in-from-left-2"
+                  style={{ animationDelay: `${idx * 100}ms`, animationFillMode: 'both' }}
+                >
                   <td className="p-8 text-[11px] uppercase font-mono text-gray-400 font-bold bg-white/[0.01] border-r border-white/5">{attr}</td>
                   <td className="p-8 border-r border-white/5 group-hover:bg-blue-500/5 transition-colors">
                     <span className="text-[13px] text-gray-200 font-medium leading-relaxed">{(currentDisplayA as any)?.[attr]?.summary || 'N/A'}</span>
@@ -311,7 +315,7 @@ const Comparator: React.FC = () => {
 
       {/* Master's Synthesis Box */}
       {currentSynthesis && (
-        <div className="mt-8 p-10 bg-gradient-to-br from-blue-900/10 via-black to-transparent rounded-[2.5rem] border border-blue-800/20 relative overflow-hidden group min-h-[200px]">
+        <div className="mt-8 p-10 bg-gradient-to-br from-blue-900/10 via-black to-transparent rounded-[2.5rem] border border-blue-800/20 relative overflow-hidden group min-h-[200px] animate-in zoom-in-95 duration-700">
           <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
             <ICONS.Brain />
           </div>
@@ -351,8 +355,12 @@ const Comparator: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {metrics.map(attr => (
-                  <tr key={attr} className="group transition-all">
+                {metrics.map((attr, idx) => (
+                  <tr 
+                    key={attr} 
+                    className="group transition-all animate-in fade-in slide-in-from-bottom-4"
+                    style={{ animationDelay: `${idx * 150}ms`, animationFillMode: 'both' }}
+                  >
                     <td className="p-10 text-[10px] uppercase font-black text-gray-500 bg-white/[0.01] border-r border-white/5 align-top pt-12">{attr}</td>
                     
                     <td 
