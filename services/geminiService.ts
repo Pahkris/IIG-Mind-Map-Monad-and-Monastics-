@@ -1,24 +1,66 @@
 
-import { GoogleGenAI, Modality } from "@google/genai";
+import { GoogleGenAI, Modality, Blob } from "@google/genai";
 
-// Always initialize GoogleGenAI with process.env.API_KEY directly inside service calls
-export const getAIResponse = async (prompt: string, context: any) => {
+// Standard Chat with Pro model
+export const getProChatResponse = async (prompt: string, history: {role: string, parts: {text: string}[]}[] = []) => {
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const chat = ai.chats.create({
+      model: 'gemini-3-pro-preview',
+      config: {
+        systemInstruction: "You are the SeTs Ryu Master, a high-level guide to Gnosticism and Chi Kung. Provide deep, philosophical but actionable insights. Keep responses concise and mystical.",
+      },
+      history: history
+    });
+    const response = await chat.sendMessage({ message: prompt });
+    return response.text;
+  } catch (error) {
+    console.error("Pro Chat Error:", error);
+    return "The Pleroma is hazy. Reconnect your intent.";
+  }
+};
+
+// Video Understanding with Pro model
+export const analyzeVideo = async (videoBase64: string, mimeType: string, prompt: string) => {
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: `Context: ${JSON.stringify(context)}\n\nUser Question: ${prompt}`,
-      config: {
-        systemInstruction: "You are the SeTs Ryu AI Coach, a mystical but pragmatic guide specializing in The Monad, Chi Kung, and Cognitive Psychology. Use the user's progress metrics to give personalized advice. Keep responses under 100 words. Encourage them to join workout classes at https://www.mindsets.eu/book-online."
+      model: 'gemini-3-pro-preview',
+      contents: {
+        parts: [
+          { inlineData: { data: videoBase64, mimeType } },
+          { text: prompt }
+        ]
       }
     });
     return response.text;
   } catch (error) {
-    console.error("Gemini Error:", error);
-    return "The void is silent for a moment. Please check your connection to the source.";
+    console.error("Video Analysis Error:", error);
+    return "The vision is obscured by material static.";
   }
 };
 
+// Transcription with Flash model
+export const transcribeAudio = async (audioBase64: string, mimeType: string) => {
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: {
+        parts: [
+          { inlineData: { data: audioBase64, mimeType } },
+          { text: "Transcribe this audio exactly as it is spoken. Do not add any commentary." }
+        ]
+      }
+    });
+    return response.text;
+  } catch (error) {
+    console.error("Transcription Error:", error);
+    return "The sound did not reach the scribe.";
+  }
+};
+
+// TTS with dedicated TTS model
 export const speakResponse = async (text: string) => {
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -51,7 +93,7 @@ export const speakResponse = async (text: string) => {
 };
 
 // Audio Utilities
-function decode(base64: string) {
+export function decode(base64: string) {
   const binaryString = atob(base64);
   const len = binaryString.length;
   const bytes = new Uint8Array(len);
@@ -61,7 +103,16 @@ function decode(base64: string) {
   return bytes;
 }
 
-async function decodeAudioData(data: Uint8Array, ctx: AudioContext, sampleRate: number, numChannels: number): Promise<AudioBuffer> {
+export function encode(bytes: Uint8Array) {
+  let binary = '';
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+export async function decodeAudioData(data: Uint8Array, ctx: AudioContext, sampleRate: number, numChannels: number): Promise<AudioBuffer> {
   const dataInt16 = new Int16Array(data.buffer);
   const frameCount = dataInt16.length / numChannels;
   const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
@@ -72,4 +123,16 @@ async function decodeAudioData(data: Uint8Array, ctx: AudioContext, sampleRate: 
     }
   }
   return buffer;
+}
+
+export function createPcmBlob(data: Float32Array): Blob {
+  const l = data.length;
+  const int16 = new Int16Array(l);
+  for (let i = 0; i < l; i++) {
+    int16[i] = data[i] * 32768;
+  }
+  return {
+    data: encode(new Uint8Array(int16.buffer)),
+    mimeType: 'audio/pcm;rate=16000',
+  };
 }

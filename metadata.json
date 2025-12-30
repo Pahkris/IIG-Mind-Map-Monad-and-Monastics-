@@ -2,6 +2,7 @@
   "name": "SeTs Ryu Monad Explorer",
   "description": "An interactive 3D solar system mind map exploring The Monad, Chi Kung, and Cognitive Psychology with an integrated AI Coach and comparative analysis tools.",
   "requestFramePermissions": [
+    "camera",
     "microphone"
   ]
 }
