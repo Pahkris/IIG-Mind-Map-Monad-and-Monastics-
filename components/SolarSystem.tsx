@@ -16,7 +16,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
   const [isPaused, setIsPaused] = useState(false);
   const [dragRotation, setDragRotation] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
-  const [showNavPop, setShowNavPop] = useState(false); // 2. Navigation Guide collapsed by default
+  const [showNavPop, setShowNavPop] = useState(false);
   const lastMousePos = useRef({ x: 0, y: 0 });
 
   const SYSTEM_CENTER_Z = 500;
@@ -60,42 +60,44 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
 
   const resetView = () => setDragRotation({ x: 0, y: 0 });
 
-  // 1. Enhanced 3D Sphere Renderer with Realistic Shading
   const ThreeDSphere = ({ size, color, label, isMoon = false, isMonad = false }: { size: number, color: string, label: string, isMoon?: boolean, isMonad?: boolean }) => {
     const shadowColor = '#000000';
     const textureUrl = 'https://www.transparenttextures.com/patterns/carbon-fibre.png';
     
-    // Complex radial gradient for realistic 3D volume
     const bg = isMonad 
       ? `radial-gradient(circle at 30% 30%, #ffffff 0%, #d1d1d1 40%, #888888 70%, #444444 100%)` 
       : `radial-gradient(circle at 35% 35%, ${color} 0%, ${color}CC 30%, ${shadowColor} 90%)`;
 
     return (
-      <div className="relative flex items-center justify-center transition-all duration-300 group-hover/obj:scale-110" style={{ width: size, height: size, transformStyle: 'preserve-3d' }}>
-        {/* Core Volumetric layers to simulate a solid sphere */}
+      <div className="relative flex items-center justify-center transition-all duration-500 group-hover/obj:scale-125" style={{ width: size, height: size, transformStyle: 'preserve-3d' }}>
+        {/* Spherical Layers */}
         <div className="absolute inset-0 rounded-full overflow-hidden ring-1 ring-white/10 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.8)]" 
              style={{ background: bg, transform: 'translateZ(0px)' }}>
           <div className="absolute inset-0 opacity-20 mix-blend-overlay bg-center bg-cover" style={{ backgroundImage: `url(${textureUrl})` }}></div>
         </div>
         
-        {/* Cross Planes for volumetric depth when tilting */}
         <div className="absolute inset-0 rounded-full" 
              style={{ background: bg, transform: 'rotateY(90deg)', filter: 'brightness(0.6)' }}></div>
         <div className="absolute inset-0 rounded-full" 
              style={{ background: bg, transform: 'rotateX(90deg)', filter: 'brightness(0.4)' }}></div>
 
-        {/* Realistic Specular Highlight (Atmosphere/Reflection) */}
+        {/* Highlight & Glow */}
         <div className="absolute inset-0 rounded-full pointer-events-none opacity-60" 
              style={{ background: 'radial-gradient(circle at 30% 30%, white 0%, transparent 40%)', transform: 'translateZ(2px)' }}></div>
         
-        {/* Rim Lighting Glow */}
         <div className="absolute inset-0 rounded-full ring-2 ring-white/5 opacity-40 group-hover/obj:opacity-100 transition-opacity" 
-             style={{ transform: 'translateZ(-1px)', boxShadow: `0 0 15px ${color}40` }}></div>
+             style={{ transform: 'translateZ(-1px)', boxShadow: `0 0 25px ${color}60` }}></div>
         
-        {/* 3. Billboarded Label (Readable at all angles) */}
+        {/* Robust Billboarded Label */}
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none" 
-             style={{ transform: `rotateX(${-dragRotation.x}deg) rotateY(${-dragRotation.y - (isMonad ? 0 : 0)}deg)` }}>
-          <span className={`uppercase font-black tracking-widest text-center px-2 drop-shadow-[0_2px_10px_rgba(0,0,0,1)] ${isMoon ? 'text-[8px] text-white/80 group-hover/obj:text-white group-hover/obj:scale-110' : isMonad ? 'text-2xl text-black' : 'text-[11px] text-white group-hover/obj:text-yellow-400 group-hover/obj:scale-105'} transition-all`}>
+             style={{ transform: `rotateX(${-dragRotation.x}deg) rotateY(${-dragRotation.y}deg)` }}>
+          <span className={`uppercase font-black tracking-[0.2em] text-center px-2 drop-shadow-[0_2px_10px_rgba(0,0,0,1)] transition-all duration-300 ${
+            isMoon 
+              ? 'text-[8px] text-white/80 group-hover/obj:text-white' 
+              : isMonad 
+                ? 'text-2xl text-white group-hover/obj:text-yellow-400 font-mystic' 
+                : 'text-[11px] text-white group-hover/obj:text-yellow-400'
+          }`}>
             {label}
           </span>
         </div>
@@ -109,7 +111,6 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
       style={{ perspective: '1500px', '--flow-speed': flowSpeed } as any}
       onMouseDown={onMouseDown}
     >
-      {/* 2. Navigation Guide - Top Left Corner (Collapsed by default) */}
       <div className="absolute top-24 left-10 z-[1000] flex flex-col items-start select-none">
         <button 
           onClick={() => setShowNavPop(!showNavPop)}
@@ -123,17 +124,15 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
             <h5 className="text-[10px] font-black text-yellow-500 uppercase mb-4 tracking-[0.3em] border-b border-white/5 pb-2">System Mastery Guide</h5>
             <ul className="text-[10px] space-y-3 text-gray-400 leading-relaxed font-medium">
               <li><span className="text-blue-500 font-black mr-2">DRAG:</span> Tilt the plane using the mouse to see 3D objects from any side.</li>
-              <li><span className="text-blue-500 font-black mr-2">3D SPHERES:</span> Objects feature realistic shading, specular highlights, and textures.</li>
-              <li><span className="text-blue-500 font-black mr-2">TRACKER:</span> View current orientation and reset to center via the Bottom-Right HUD.</li>
-              <li><span className="text-blue-500 font-black mr-2">HOVER:</span> Detailed data summaries appear on hover for all major bodies.</li>
-              <li><span className="text-blue-500 font-black mr-2">WARP:</span> Intensifies starfield velocity and rotation orbital mechanics.</li>
+              <li><span className="text-blue-500 font-black mr-2">3D SPHERES:</span> Objects feature realistic shading and billboards.</li>
+              <li><span className="text-blue-500 font-black mr-2">TRACKER:</span> View orientation and reset to center via the Bottom-Right HUD.</li>
+              <li><span className="text-blue-500 font-black mr-2">HOVER:</span> Labels turn yellow and objects zoom for emphasis.</li>
             </ul>
             <button onClick={() => setShowNavPop(false)} className="mt-6 w-full py-2 bg-white/5 rounded-xl text-[9px] text-gray-400 hover:text-white uppercase tracking-widest border border-white/10 font-bold transition-all">Minimize HUD</button>
           </div>
         )}
       </div>
 
-      {/* 3. Plane Tracker (Pitch & Yaw) - Bottom Right Corner */}
       <div className="absolute bottom-10 right-10 z-[1000] flex flex-col items-end select-none">
         <div 
           onClick={resetView}
@@ -172,25 +171,23 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
           transformStyle: 'preserve-3d'
         }}
       >
-        {/* Central Hub: The Monad */}
+        {/* Monad Monastics Central Sphere */}
         <div 
           onClick={() => onNodeClick(data)}
-          className="group/obj absolute w-64 h-64 flex items-center justify-center cursor-pointer transition-all duration-700"
+          className="group/obj absolute w-72 h-72 flex items-center justify-center cursor-pointer transition-all duration-700"
           style={{ 
             zIndex: SYSTEM_CENTER_Z,
             transform: 'translate3d(0, 0, 0)',
             transformStyle: 'preserve-3d'
           }}
         >
-          <ThreeDSphere size={256} color="#ffffff" label={data.label} isMonad />
-          <div className="absolute inset-0 bg-white/10 rounded-full animate-ping pointer-events-none"></div>
+          <ThreeDSphere size={280} color="#ffffff" label={data.label} isMonad />
+          <div className="absolute inset-0 bg-white/5 rounded-full animate-pulse pointer-events-none ring-2 ring-white/10"></div>
         </div>
 
-        {/* Orbit Plane Circle */}
         <div className="absolute w-[950px] h-[950px] border border-blue-500/10 rounded-full pointer-events-none" 
           style={{ transform: 'rotateX(90deg) translateZ(-50px)', zIndex: 1 }}></div>
 
-        {/* Dynamic Energy Links */}
         {data.subNodes?.map((planet, index) => {
           const angle = (index * (360 / data.subNodes!.length) + rotation) * (Math.PI / 180);
           const radius = 380;
@@ -219,7 +216,6 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
           );
         })}
 
-        {/* Planets and Moons System */}
         {data.subNodes?.map((planet, index) => {
           const angle = (index * (360 / data.subNodes!.length) + rotation) * (Math.PI / 180);
           const radius = 380;
@@ -243,12 +239,9 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
                 onClick={() => onNodeClick(planet)}
               >
                 <ThreeDSphere size={128} color={planet.color} label={planet.label} />
-                
                 {isVisited && (
                   <div className="absolute top-0 right-0 w-6 h-6 bg-yellow-400 rounded-full animate-pulse shadow-[0_0_25px_#f5a623] z-30"></div>
                 )}
-                
-                {/* Planet Information Pop-up */}
                 <div 
                   className="absolute -bottom-36 left-1/2 -translate-x-1/2 w-64 opacity-0 group-hover/obj:opacity-100 transition-all duration-500 bg-black/95 backdrop-blur-xl p-5 rounded-2xl border border-white/10 text-center z-[100] scale-90 group-hover/obj:scale-100 shadow-[0_10px_40px_rgba(0,0,0,0.8)] pointer-events-none"
                   style={{ transform: `translateX(-50%) rotateX(${-dragRotation.x}deg) rotateY(${-dragRotation.y}deg)` }}
@@ -258,7 +251,6 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
                 </div>
               </div>
 
-              {/* Orbital Moons */}
               {planet.subNodes?.map((moon, mIdx) => {
                 const mAngle = (mIdx * (360 / planet.subNodes!.length) + rotation * 2.8) * (Math.PI / 180);
                 const mRadius = 115; 
@@ -272,8 +264,6 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
                       className="relative pointer-events-auto cursor-pointer group/obj transition-transform duration-300"
                     >
                       <ThreeDSphere size={52} color={moon.color} label={moon.label} isMoon />
-                      
-                      {/* Moon Information Pop-up on Hover */}
                       <div 
                         className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-48 opacity-0 group-hover/obj:opacity-100 transition-all duration-500 bg-black/95 backdrop-blur-xl p-3 rounded-xl border border-blue-500/30 text-center z-[100] scale-75 group-hover/obj:scale-100 shadow-2xl pointer-events-none"
                         style={{ transform: `translateX(-50%) rotateX(${-dragRotation.x}deg) rotateY(${-dragRotation.y}deg)` }}
@@ -290,7 +280,6 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
         })}
       </div>
 
-      {/* SeTs AI Coach Hub */}
       <div 
         className="absolute top-32 right-32 z-[1000] cursor-pointer group animate-gentle-glow rounded-full"
         onClick={() => onNodeClick({ id: 'ai-coach', label: 'AI Coach', type: 'coach', color: COLORS.brandYellow, description: 'Ask the Master.', content: [] })}
@@ -308,7 +297,6 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
         </div>
       </div>
 
-      {/* Consolidated Controls - Bottom Left */}
       <div className="absolute bottom-10 left-10 z-[1000] flex flex-col gap-4">
         <div className="bg-black/85 backdrop-blur-xl p-6 rounded-3xl border border-white/10 w-80 shadow-[0_20px_50px_rgba(0,0,0,0.8)] animate-in fade-in slide-in-from-left-4 duration-500">
            <div className="flex justify-between items-center mb-4">

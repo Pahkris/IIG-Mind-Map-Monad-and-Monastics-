@@ -63,7 +63,7 @@ export const LIBRARY_RESOURCES: LibraryItem[] = [
 
 export const MIND_MAP_DATA: NodeData = {
   id: 'monad',
-  label: 'The Monad',
+  label: 'Monad Monastics',
   type: 'hub',
   color: '#FFFFFF',
   description: 'The absolute source of all existence. Beyond the simulated layers of the material realm.',
