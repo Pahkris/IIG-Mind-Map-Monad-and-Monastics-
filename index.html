@@ -32,6 +32,21 @@
     .wormhole-layer:nth-child(2) { animation-delay: 0.1s; border-color: rgba(245, 166, 35, 0.4); }
     .wormhole-layer:nth-child(3) { animation-delay: 0.2s; border-color: rgba(255, 255, 255, 0.3); }
 
+    /* Persistent Hyperwarp Streaks */
+    @keyframes hyperwarp {
+      0% { transform: translateZ(0) scale(1); opacity: 0; }
+      50% { opacity: 1; }
+      100% { transform: translateZ(1000px) scale(2); opacity: 0; }
+    }
+    .warp-streak {
+      position: absolute;
+      width: 2px;
+      height: 100px;
+      background: linear-gradient(to bottom, transparent, rgba(59, 130, 246, 0.8), white);
+      opacity: 0;
+      pointer-events: none;
+    }
+
     /* Gentle Pulse for AI Master */
     @keyframes gentle-glow {
       0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(245, 166, 35, 0.3); }
@@ -43,11 +58,11 @@
 
     /* Energy Flow Animation for Relational Links */
     @keyframes energy-flow {
-      from { stroke-dashoffset: 20; }
+      from { stroke-dashoffset: 40; }
       to { stroke-dashoffset: 0; }
     }
     .link-energy {
-      animation: energy-flow 1s linear infinite;
+      animation: energy-flow var(--flow-speed, 1s) linear infinite;
     }
 
     /* Custom scrollbar for info cards */
@@ -60,6 +75,31 @@
     .custom-scrollbar::-webkit-scrollbar-thumb {
       background: rgba(59, 130, 246, 0.3);
       border-radius: 10px;
+    }
+
+    /* Glass Slider styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    input[type=range]::-webkit-slider-thumb {
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      background: #F5A623;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -7px;
+      box-shadow: 0 0 10px rgba(245, 166, 35, 0.8);
+      border: 2px solid white;
     }
   </style>
 <script type="importmap">

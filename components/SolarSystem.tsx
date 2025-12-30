@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { NodeData } from '../types';
 import { COLORS, ICONS } from '../constants';
 
@@ -15,18 +15,25 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
   const [dragRotation, setDragRotation] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [showNavPop, setShowNavPop] = useState(false);
+  const [warpFactor, setWarpFactor] = useState(1); // 1 to 10
   const lastMousePos = useRef({ x: 0, y: 0 });
 
   // Baseline Z-index for the center of the system
   const SYSTEM_CENTER_Z = 500;
 
+  // Calculate rotation increment based on warp factor
+  const rotationIncrement = useMemo(() => 0.15 * warpFactor, [warpFactor]);
+  
+  // Calculate CSS flow speed (animation duration)
+  const flowSpeed = useMemo(() => `${1.5 / warpFactor}s`, [warpFactor]);
+
   useEffect(() => {
     if (isPaused) return;
     const interval = setInterval(() => {
-      setRotation(prev => (prev + 0.15) % 360);
+      setRotation(prev => (prev + rotationIncrement) % 360);
     }, 16);
     return () => clearInterval(interval);
-  }, [isPaused]);
+  }, [isPaused, rotationIncrement]);
 
   const onMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
@@ -55,12 +62,41 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
     };
   }, [onMouseMove]);
 
+  // Generate hyperwarp streaks based on intensity
+  const warpStreaks = useMemo(() => {
+    const count = Math.floor(warpFactor * 5);
+    return Array.from({ length: count }).map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      delay: `${Math.random() * 2}s`,
+      duration: `${1 / (warpFactor * 0.5)}s`
+    }));
+  }, [warpFactor]);
+
   return (
     <div 
       className="relative w-full h-full flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing" 
-      style={{ perspective: '1500px' }}
+      style={{ perspective: '1500px', '--flow-speed': flowSpeed } as any}
       onMouseDown={onMouseDown}
     >
+      {/* Hyperwarp Atmosphere Layer */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden" style={{ transform: 'translateZ(-500px)' }}>
+        {warpStreaks.map(streak => (
+          <div 
+            key={streak.id}
+            className="warp-streak"
+            style={{
+              left: streak.left,
+              top: streak.top,
+              animation: `hyperwarp ${streak.duration} linear infinite`,
+              animationDelay: streak.delay,
+              opacity: warpFactor > 3 ? (warpFactor - 3) / 7 : 0
+            }}
+          />
+        ))}
+      </div>
+
       <div 
         className="relative w-full h-full flex items-center justify-center transition-transform duration-300"
         style={{ 
@@ -257,6 +293,27 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
       </div>
 
       <div className="absolute bottom-10 left-10 flex flex-col gap-4 z-[1000]">
+        {/* Warp Intensity Slider */}
+        <div className="bg-black/80 backdrop-blur-md p-6 rounded-3xl border border-white/10 w-64 shadow-2xl animate-in fade-in slide-in-from-left-4 duration-500 mb-2">
+           <div className="flex justify-between items-center mb-3">
+             <span className="text-[10px] uppercase font-black text-blue-400 tracking-widest">Warp Factor</span>
+             <span className="text-[10px] font-mono text-white bg-blue-900/40 px-2 py-0.5 rounded border border-blue-500/30">x{warpFactor.toFixed(1)}</span>
+           </div>
+           <input 
+             type="range" 
+             min="0.5" 
+             max="10" 
+             step="0.1" 
+             value={warpFactor} 
+             onChange={(e) => setWarpFactor(parseFloat(e.target.value))}
+             className="w-full h-1"
+           />
+           <div className="flex justify-between mt-2">
+             <span className="text-[8px] text-gray-500 uppercase">Sub-Light</span>
+             <span className="text-[8px] text-gray-500 uppercase">Gnosis Drive</span>
+           </div>
+        </div>
+
         <button 
           onClick={() => setIsPaused(!isPaused)}
           className="flex items-center gap-3 px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-xs uppercase tracking-widest transition shadow-2xl backdrop-blur-sm"
@@ -275,6 +332,7 @@ const SolarSystem: React.FC<SolarSystemProps> = ({ data, onNodeClick, visitedNod
               <h5 className="text-xs font-bold text-yellow-500 uppercase mb-4 tracking-[0.2em] border-b border-white/5 pb-2">Navigation Mastery</h5>
               <ul className="text-[11px] space-y-3 text-gray-300 leading-relaxed font-mono">
                 <li><span className="text-blue-500 font-bold mr-2">DRAG:</span> Left-click & hold empty space to tilt the system.</li>
+                <li><span className="text-blue-500 font-bold mr-2">WARP:</span> Use the slider to increase system energy and speed.</li>
                 <li><span className="text-blue-500 font-bold mr-2">HOVER:</span> Core planets zoom 1.5x; moons zoom 2.5x.</li>
                 <li><span className="text-blue-500 font-bold mr-2">CLICK:</span> Engage wormhole tunneling for immersion.</li>
                 <li><span className="text-blue-500 font-bold mr-2">ENERGY:</span> Moving light pulses indicate the flow of knowledge.</li>
