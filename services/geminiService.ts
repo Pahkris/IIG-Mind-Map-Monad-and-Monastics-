@@ -4,7 +4,7 @@ import { GoogleGenAI, Modality, Blob } from "@google/genai";
 // Standard Chat with Pro model
 export const getProChatResponse = async (prompt: string, history: {role: string, parts: {text: string}[]}[] = []) => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
     const chat = ai.chats.create({
       model: 'gemini-3-pro-preview',
       config: {
@@ -23,7 +23,7 @@ export const getProChatResponse = async (prompt: string, history: {role: string,
 // Video Understanding with Pro model
 export const analyzeVideo = async (videoBase64: string, mimeType: string, prompt: string) => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
     const response = await ai.models.generateContent({
       model: 'gemini-3-pro-preview',
       contents: {
@@ -43,7 +43,7 @@ export const analyzeVideo = async (videoBase64: string, mimeType: string, prompt
 // Transcription with Flash model
 export const transcribeAudio = async (audioBase64: string, mimeType: string) => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: {
@@ -63,7 +63,7 @@ export const transcribeAudio = async (audioBase64: string, mimeType: string) => 
 // TTS with dedicated TTS model
 export const speakResponse = async (text: string) => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-tts",
       contents: [{ parts: [{ text }] }],
